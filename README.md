@@ -3,6 +3,13 @@
 A small, floating, window manager for X11 written in
 C99 with a single dependency: libX11.
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Desktop with floating windows and the status bar](meta/screenshot-1-desktop.png) | ![A maximized window](meta/screenshot-2-maximized.png) |
+| ![Switching between workspaces](meta/screenshot-3-workspace-switch.png) | ![Dragging overlapping windows](meta/screenshot-4-overlap-drag.png) |
+
 ## Building
 
 Requirements: a C99 compiler, POSIX make, libX11 headers
