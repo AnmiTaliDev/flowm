@@ -339,6 +339,14 @@ handle_client_message(WM *wm, XClientMessageEvent *ev)
                          !c->is_fullscreen);
             client_set_fullscreen(wm, c, want);
         }
+        if (a1 == ewmh_atom(ATOM_NET_WM_STATE_DEMANDS_ATTENTION) ||
+            a2 == ewmh_atom(ATOM_NET_WM_STATE_DEMANDS_ATTENTION)) {
+            long action = ev->data.l[0];
+            bool want = action == NET_WM_STATE_ADD ||
+                        (action == NET_WM_STATE_TOGGLE &&
+                         !c->is_urgent);
+            client_set_urgent(wm, c, want);
+        }
         return;
     }
 

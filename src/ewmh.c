@@ -37,6 +37,8 @@ static const char *atom_names[ATOM_COUNT] = {
     [ATOM_NET_WM_DESKTOP]        = "_NET_WM_DESKTOP",
     [ATOM_NET_WM_STATE]          = "_NET_WM_STATE",
     [ATOM_NET_WM_STATE_FULLSCREEN] = "_NET_WM_STATE_FULLSCREEN",
+    [ATOM_NET_WM_STATE_DEMANDS_ATTENTION] =
+        "_NET_WM_STATE_DEMANDS_ATTENTION",
     [ATOM_NET_WM_WINDOW_TYPE]    = "_NET_WM_WINDOW_TYPE",
     [ATOM_NET_WM_WINDOW_TYPE_DOCK] = "_NET_WM_WINDOW_TYPE_DOCK",
     [ATOM_NET_WM_WINDOW_TYPE_DESKTOP] = "_NET_WM_WINDOW_TYPE_DESKTOP",
@@ -102,6 +104,7 @@ ewmh_setup(WM *wm)
     supported[n++] = atoms[ATOM_NET_WM_DESKTOP];
     supported[n++] = atoms[ATOM_NET_WM_STATE];
     supported[n++] = atoms[ATOM_NET_WM_STATE_FULLSCREEN];
+    supported[n++] = atoms[ATOM_NET_WM_STATE_DEMANDS_ATTENTION];
     supported[n++] = atoms[ATOM_NET_WM_WINDOW_TYPE];
 
     XChangeProperty(wm->dpy, wm->root, atoms[ATOM_NET_SUPPORTED],

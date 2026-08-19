@@ -176,26 +176,33 @@ void
 client_update_wm_hints(WM *wm, Client *c)
 {
     XWMHints *hints = XGetWMHints(wm->dpy, c->win);
-    bool was_urgent = c->is_urgent;
+    bool urgent = false;
 
     c->never_focus = false;
-    c->is_urgent   = false;
 
     if (hints != NULL) {
         if ((hints->flags & InputHint) && hints->input == False)
             c->never_focus = true;
         if (hints->flags & XUrgencyHint)
-            c->is_urgent = true;
+            urgent = true;
         XFree(hints);
     }
 
     if (c->takes_wm_focus)
         c->never_focus = false;
 
-    if (was_urgent != c->is_urgent) {
-        client_update_decor_colors(wm, c);
-        bar_draw(wm);
-    }
+    client_set_urgent(wm, c, urgent);
+}
+
+void
+client_set_urgent(WM *wm, Client *c, bool urgent)
+{
+    if (urgent == c->is_urgent)
+        return;
+
+    c->is_urgent = urgent;
+    client_update_decor_colors(wm, c);
+    bar_draw(wm);
 }
 
 void
@@ -452,6 +459,7 @@ client_focus(WM *wm, Client *c)
                                ewmh_atom(ATOM_WM_TAKE_FOCUS),
                                CurrentTime);
         wm->workspaces[wm->current_ws].focused = c;
+        client_set_urgent(wm, c, false);
         client_update_decor_colors(wm, c);
     } else {
         XSetInputFocus(wm->dpy, wm->root, RevertToPointerRoot,

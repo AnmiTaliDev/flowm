@@ -37,6 +37,8 @@ void client_update_size_hints(WM *wm, Client *c);
 
 void client_update_wm_hints(WM *wm, Client *c);
 
+void client_set_urgent(WM *wm, Client *c, bool urgent);
+
 void client_update_title(WM *wm, Client *c);
 
 void client_set_fullscreen(WM *wm, Client *c, bool fullscreen);
