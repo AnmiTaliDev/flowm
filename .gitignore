@@ -1,0 +1,22 @@
+# Build artifacts
+*.o
+*.d
+flowm
+tests/*.o
+tests/test_*
+!tests/*.c
+!tests/*.h
+
+# Debug builds
+*.dSYM/
+core
+
+# Editor / OS cruft
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Local build/config overrides
+*.log
+compile_commands.json

@@ -1,0 +1,104 @@
+.TH FLOWM 1 "July 2026" "flowm 1.0.0" "User Commands"
+.SH NAME
+flowm \- a floating, reparenting window manager for X11
+.SH SYNOPSIS
+.B flowm
+.RB [ \-c
+.IR file ]
+.RB [ \-d ]
+.RB [ \-v ]
+.RB [ \-h ]
+.SH DESCRIPTION
+.B flowm
+is a small floating window manager.  Each top-level window is
+reparented into a decorated frame with a border, a title bar and a
+close button.  Windows are moved by dragging the title bar (or
+Mod4+left-drag anywhere in the window) and resized with
+Mod4+right-drag.  Up to 16 virtual workspaces are provided, together
+with a built-in status bar showing the workspace list, the focused
+window title and a clock.
+.PP
+.B flowm
+implements the relevant parts of the ICCCM and EWMH specifications:
+polite window closing via
+.BR WM_DELETE_WINDOW ,
+focus handover via
+.BR WM_TAKE_FOCUS ,
+size hints during resize, fullscreen via
+.BR _NET_WM_STATE_FULLSCREEN ,
+and the usual root window properties consumed by pagers and task bars.
+.SH OPTIONS
+.TP
+.BI \-c " file"
+Read configuration from
+.I file
+instead of the default location.
+.TP
+.B \-d
+Enable debug logging to standard error.
+.TP
+.B \-v
+Print the version and exit.
+.TP
+.B \-h
+Print a usage summary and exit.
+.SH CONFIGURATION
+The configuration file is searched for at
+.I $XDG_CONFIG_HOME/flowm/flowm.conf
+and then
+.IR ~/.config/flowm/flowm.conf .
+A missing file is not an error; built-in defaults cover everything.
+The file consists of
+.B key = value
+lines,
+.B bind = CHORD ACTION
+key bindings and
+.B rule = MATCH options
+per-application rules.  See the shipped
+.I flowm.conf
+for the complete, commented list of options.
+.SH DEFAULT BINDINGS
+Mod4 is the Super ("Windows") key.
+.TP
+.B Mod4+Return
+Spawn a terminal
+.RB ( xterm ).
+.TP
+.B Mod4+d
+Spawn
+.BR dmenu_run .
+.TP
+.B Mod4+q / Mod4+Shift+q
+Close politely / kill the focused window.
+.TP
+.B Mod4+f, Mod4+m, Mod4+c
+Fullscreen, maximize, center.
+.TP
+.B Mod4+Tab / Mod4+Shift+Tab
+Cycle focus forward / backward.
+.TP
+.B Mod4+1..9 / Mod4+Shift+1..9
+Switch to / send window to workspace.
+.TP
+.B Mod4+Shift+e
+Quit
+.BR flowm .
+.SH ENVIRONMENT
+.TP
+.B DISPLAY
+The X display to manage.
+.TP
+.B XDG_CONFIG_HOME
+Base directory for the configuration file.
+.SH FILES
+.TP
+.I ~/.config/flowm/flowm.conf
+Per-user configuration.
+.SH SEE ALSO
+.BR X (7),
+.BR xterm (1),
+.BR dmenu (1)
+.SH BUGS
+Multi-monitor layouts are treated as one large screen (no RandR
+awareness); this is a deliberate scope limit to keep libX11 the only
+dependency.
