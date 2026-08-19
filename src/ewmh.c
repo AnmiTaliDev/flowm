@@ -47,6 +47,8 @@ static const char *atom_names[ATOM_COUNT] = {
         "_NET_WM_WINDOW_TYPE_NOTIFICATION",
 
     [ATOM_UTF8_STRING]           = "UTF8_STRING",
+
+    [ATOM_FLOWM_CMD]             = "_FLOWM_CMD",
 };
 
 void

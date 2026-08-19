@@ -284,10 +284,38 @@ handle_enter_notify(WM *wm, XCrossingEvent *ev)
 }
 
 static void
+handle_ipc_command(WM *wm)
+{
+    unsigned char *data = NULL;
+    Atom type;
+    int format;
+    unsigned long nitems, after;
+
+    if (XGetWindowProperty(wm->dpy, wm->root, ewmh_atom(ATOM_FLOWM_CMD),
+                           0, 4096 / 4, True, AnyPropertyType,
+                           &type, &format, &nitems, &after,
+                           &data) != Success || data == NULL)
+        return;
+
+    if (nitems > 0)
+        wm_apply_config_string(wm, (const char *)data);
+
+    XFree(data);
+}
+
+static void
 handle_property_notify(WM *wm, XPropertyEvent *ev)
 {
-    Client *c = client_from_window(wm, ev->window);
+    Client *c;
 
+    if (ev->window == wm->root) {
+        if (ev->atom == ewmh_atom(ATOM_FLOWM_CMD) &&
+            ev->state == PropertyNewValue)
+            handle_ipc_command(wm);
+        return;
+    }
+
+    c = client_from_window(wm, ev->window);
     if (c == NULL)
         return;
 

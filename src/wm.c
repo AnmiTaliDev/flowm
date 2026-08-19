@@ -266,25 +266,10 @@ wm_scan_existing(WM *wm)
 }
 
 void
-wm_reload_config(WM *wm)
+wm_apply_visual_config(WM *wm)
 {
-    Config new_cfg;
     Client *c;
     int i;
-
-    config_defaults(&new_cfg);
-    if (!config_load(&new_cfg, wm->config_path[0] != '\0'
-                               ? wm->config_path : NULL)) {
-        log_error("reload: failed to parse configuration, "
-                  "keeping previous settings");
-        config_free(&new_cfg);
-        return;
-    }
-
-    keys_ungrab(wm);
-    config_free(&wm->config);
-    wm->config = new_cfg;
-    keys_grab(wm);
 
     log_set_level(wm->config.log_level);
 
@@ -309,8 +294,80 @@ wm_reload_config(WM *wm)
 
     for (c = wm->clients; c != NULL; c = c->next)
         client_update_decor_colors(wm, c);
+}
+
+void
+wm_reload_config(WM *wm)
+{
+    Config new_cfg;
+
+    config_defaults(&new_cfg);
+    if (!config_load(&new_cfg, wm->config_path[0] != '\0'
+                               ? wm->config_path : NULL)) {
+        log_error("reload: failed to parse configuration, "
+                  "keeping previous settings");
+        config_free(&new_cfg);
+        return;
+    }
+
+    keys_ungrab(wm);
+    config_free(&wm->config);
+    wm->config = new_cfg;
+    keys_grab(wm);
+
+    wm_apply_visual_config(wm);
 
     log_info("reload: configuration reloaded");
+}
+
+#define IPC_TEXT_MAX 4096
+
+void
+wm_apply_config_string(WM *wm, const char *text)
+{
+    char buf[IPC_TEXT_MAX];
+    char *line, *save = NULL;
+    int applied = 0, errors = 0;
+
+    xstrlcpy(buf, text, sizeof(buf));
+
+    for (line = strtok_r(buf, "\n", &save); line != NULL;
+         line = strtok_r(NULL, "\n", &save)) {
+        char *key, *value, *eq;
+
+        line = str_trim(line);
+        if (*line == '\0' || *line == '#')
+            continue;
+
+        eq = strchr(line, '=');
+        if (eq == NULL) {
+            log_warn("ipc: expected 'key=value': %s", line);
+            errors++;
+            continue;
+        }
+        *eq = '\0';
+        key   = str_trim(line);
+        value = str_trim(eq + 1);
+
+        if (*key == '\0' || *value == '\0') {
+            log_warn("ipc: empty key or value: %s", line);
+            errors++;
+            continue;
+        }
+
+        if (config_apply_option(&wm->config, key, value)) {
+            applied++;
+        } else {
+            log_warn("ipc: unknown key or bad value: %s = %s",
+                     key, value);
+            errors++;
+        }
+    }
+
+    if (applied > 0)
+        wm_apply_visual_config(wm);
+
+    log_info("ipc: applied %d option(s), %d error(s)", applied, errors);
 }
 
 void

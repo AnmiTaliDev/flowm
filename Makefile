@@ -60,7 +60,14 @@ test: $(TEST_BIN)
 $(TEST_BIN): $(TEST_SRC)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(TEST_SRC) $(LDLIBS)
 
-clean:
-	rm -f $(BIN) $(OBJ) $(TEST_BIN)
+UTILS_BIN = utils/panelctl
 
-.PHONY: all debug test install uninstall clean
+utils: $(UTILS_BIN)
+
+$(UTILS_BIN): utils/panelctl.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ utils/panelctl.c $(LDLIBS)
+
+clean:
+	rm -f $(BIN) $(OBJ) $(TEST_BIN) $(UTILS_BIN)
+
+.PHONY: all debug test install uninstall clean utils

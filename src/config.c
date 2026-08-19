@@ -302,8 +302,8 @@ set_int_option(const char *value, long lo, long hi, int *slot)
     return true;
 }
 
-static bool
-apply_option(Config *cfg, const char *key, const char *value)
+bool
+config_apply_option(Config *cfg, const char *key, const char *value)
 {
     if (str_ieq(key, "border_width"))
         return set_int_option(value, 0, 64, &cfg->border_width);
@@ -529,7 +529,7 @@ config_load(Config *cfg, const char *explicit_path)
             continue;
         }
 
-        if (!apply_option(cfg, key, value)) {
+        if (!config_apply_option(cfg, key, value)) {
             log_warn("config:%s:%d: unknown key or bad value: %s = %s",
                      path, lineno, key, value);
             errors++;

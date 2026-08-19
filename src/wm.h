@@ -194,6 +194,10 @@ void wm_quit(WM *wm);
 
 void wm_reload_config(WM *wm);
 
+void wm_apply_visual_config(WM *wm);
+
+void wm_apply_config_string(WM *wm, const char *text);
+
 void wm_usable_area(const WM *wm, int *x, int *y, int *w, int *h);
 
 unsigned long wm_alloc_pixel(WM *wm, unsigned long rgb);

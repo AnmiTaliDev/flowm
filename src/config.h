@@ -17,6 +17,8 @@ bool config_load(Config *cfg, const char *explicit_path);
 
 void config_free(Config *cfg);
 
+bool config_apply_option(Config *cfg, const char *key, const char *value);
+
 bool config_parse_chord(const char *chord, unsigned int *mods_out,
                         unsigned long *keysym_out);
 
