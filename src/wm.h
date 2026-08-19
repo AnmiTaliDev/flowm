@@ -150,6 +150,7 @@ typedef struct WM {
     int      screen_w, screen_h;
 
     Config    config;
+    char      config_path[512];
     Workspace workspaces[FLOWM_MAX_WORKSPACES];
     int       current_ws;
 
@@ -190,6 +191,8 @@ void wm_run(WM *wm);
 void wm_shutdown(WM *wm);
 
 void wm_quit(WM *wm);
+
+void wm_reload_config(WM *wm);
 
 void wm_usable_area(const WM *wm, int *x, int *y, int *w, int *h);
 

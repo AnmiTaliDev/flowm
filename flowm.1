@@ -83,6 +83,18 @@ Switch to / send window to workspace.
 .B Mod4+Shift+e
 Quit
 .BR flowm .
+.SH SIGNALS
+.TP
+.B SIGHUP
+Reload the configuration file in place: rebind keys, re-apply colors,
+fonts, workspace names and rules to the running session without
+restarting
+.BR flowm ,
+so managed windows keep their positions.
+.TP
+.B SIGTERM, SIGINT
+Quit
+.BR flowm .
 .SH ENVIRONMENT
 .TP
 .B DISPLAY

@@ -96,6 +96,7 @@ install_signal_handlers(void)
     sigemptyset(&sa.sa_mask);
     sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGHUP, &sa, NULL);
 
     memset(&sa, 0, sizeof(sa));
     sa.sa_handler = SIG_IGN;
@@ -154,6 +155,9 @@ wm_init(WM *wm, const char *config_path)
     XSetWindowAttributes root_attrs;
 
     memset(wm, 0, sizeof(*wm));
+
+    if (config_path != NULL)
+        xstrlcpy(wm->config_path, config_path, sizeof(wm->config_path));
 
     config_defaults(&wm->config);
     if (!config_load(&wm->config, config_path))
@@ -262,6 +266,54 @@ wm_scan_existing(WM *wm)
 }
 
 void
+wm_reload_config(WM *wm)
+{
+    Config new_cfg;
+    Client *c;
+    int i;
+
+    config_defaults(&new_cfg);
+    if (!config_load(&new_cfg, wm->config_path[0] != '\0'
+                               ? wm->config_path : NULL)) {
+        log_error("reload: failed to parse configuration, "
+                  "keeping previous settings");
+        config_free(&new_cfg);
+        return;
+    }
+
+    keys_ungrab(wm);
+    config_free(&wm->config);
+    wm->config = new_cfg;
+    keys_grab(wm);
+
+    log_set_level(wm->config.log_level);
+
+    alloc_all_pixels(wm);
+
+    if (wm->frame_font != NULL) {
+        XFreeFont(wm->dpy, wm->frame_font);
+        wm->frame_font = NULL;
+    }
+    wm->frame_font = XLoadQueryFont(wm->dpy, wm->config.font_name);
+    if (wm->frame_font == NULL)
+        wm->frame_font = XLoadQueryFont(wm->dpy, "fixed");
+    if (wm->frame_font != NULL)
+        XSetFont(wm->dpy, wm->frame_gc, wm->frame_font->fid);
+
+    for (i = 0; i < FLOWM_MAX_WORKSPACES; i++)
+        xstrlcpy(wm->workspaces[i].name, wm->config.workspace_names[i],
+                 sizeof(wm->workspaces[i].name));
+
+    bar_shutdown(wm);
+    bar_init(wm);
+
+    for (c = wm->clients; c != NULL; c = c->next)
+        client_update_decor_colors(wm, c);
+
+    log_info("reload: configuration reloaded");
+}
+
+void
 wm_run(WM *wm)
 {
     int xfd = ConnectionNumber(wm->dpy);
@@ -274,8 +326,15 @@ wm_run(WM *wm)
         int ready;
 
         if (got_signal != 0) {
-            log_info("received signal %d, shutting down",
-                     (int)got_signal);
+            int sig = (int)got_signal;
+
+            got_signal = 0;
+            if (sig == SIGHUP) {
+                log_info("received SIGHUP, reloading configuration");
+                wm_reload_config(wm);
+                continue;
+            }
+            log_info("received signal %d, shutting down", sig);
             break;
         }
 
