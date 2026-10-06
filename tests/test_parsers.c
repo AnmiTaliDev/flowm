@@ -131,6 +131,18 @@ test_parse_action(void)
     CHECK(config_parse_action("sticky", &b));
     CHECK(b.action == ACT_STICKY);
 
+    CHECK(config_parse_action("snap_left", &b));
+    CHECK(b.action == ACT_SNAP_LEFT);
+
+    CHECK(config_parse_action("snap_right", &b));
+    CHECK(b.action == ACT_SNAP_RIGHT);
+
+    CHECK(config_parse_action("tile_left", &b));
+    CHECK(b.action == ACT_SNAP_LEFT);
+
+    CHECK(config_parse_action("tile_right", &b));
+    CHECK(b.action == ACT_SNAP_RIGHT);
+
     CHECK(!config_parse_action("workspace 0", &b));     /* 1-based   */
     CHECK(!config_parse_action("workspace 99", &b));    /* too big   */
     CHECK(!config_parse_action("exec", &b));            /* no cmd    */
@@ -171,14 +183,18 @@ test_rule_lines(void)
     CHECK(rs.count == 3);
     CHECK(rs.rules[2].sticky);
 
+    CHECK(rules_parse_line(&rs, "feh snap_left"));
+    CHECK(rs.count == 4);
+    CHECK(rs.rules[3].snap_left);
+
     CHECK(rules_parse_line(&rs, "xterm position=10:20"));
-    CHECK(rs.rules[3].set_position);
-    CHECK(rs.rules[3].x == 10 && rs.rules[3].y == 20);
+    CHECK(rs.rules[4].set_position);
+    CHECK(rs.rules[4].x == 10 && rs.rules[4].y == 20);
 
     CHECK(!rules_parse_line(&rs, "NoOptionsHere"));
     CHECK(!rules_parse_line(&rs, "app bogus=1"));
     CHECK(!rules_parse_line(&rs, "app size=abc"));
-    CHECK(rs.count == 4);
+    CHECK(rs.count == 5);
 }
 
 static void

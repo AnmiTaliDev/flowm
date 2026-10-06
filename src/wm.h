@@ -21,6 +21,12 @@
 
 struct WM;
 
+typedef enum ClientSnap {
+    SNAP_NONE = 0,
+    SNAP_LEFT,
+    SNAP_RIGHT
+} ClientSnap;
+
 typedef struct Client {
     Window win;
     Window frame;
@@ -44,6 +50,7 @@ typedef struct Client {
     bool is_fullscreen;
     bool is_maximized;
     bool is_sticky;
+    ClientSnap snap;
     bool is_mapped;
     bool never_focus;
     bool takes_wm_focus;
@@ -73,6 +80,8 @@ typedef enum ActionType {
     ACT_RESIZE,
     ACT_CENTER,
     ACT_STICKY,
+    ACT_SNAP_LEFT,
+    ACT_SNAP_RIGHT,
     ACT_RAISE,
     ACT_LOWER
 } ActionType;

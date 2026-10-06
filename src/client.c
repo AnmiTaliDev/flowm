@@ -422,20 +422,65 @@ client_toggle_maximize(WM *wm, Client *c)
         int th = client_titlebar_height(wm, c);
         int bw = wm->config.border_width;
 
-        c->sx = c->x;
-        c->sy = c->y;
-        c->sw = c->w;
-        c->sh = c->h;
+        if (c->snap == SNAP_NONE) {
+            c->sx = c->x;
+            c->sy = c->y;
+            c->sw = c->w;
+            c->sh = c->h;
+        }
 
         wm_usable_area(wm, &ux, &uy, &uw, &uh);
         c->is_maximized = true;
+        c->snap = SNAP_NONE;
         client_move_resize(wm, c,
                            ux + bw, uy + th + bw,
                            uw - 2 * bw, uh - th - 2 * bw, false);
     } else {
         c->is_maximized = false;
+        c->snap = SNAP_NONE;
         client_move_resize(wm, c, c->sx, c->sy, c->sw, c->sh, true);
     }
+}
+
+void
+client_snap_half(WM *wm, Client *c, bool left)
+{
+    ClientSnap target = left ? SNAP_LEFT : SNAP_RIGHT;
+    int ux, uy, uw, uh;
+    int th, bw, hw, nx, nw;
+
+    if (c->is_fullscreen)
+        return;
+
+    if (c->snap == target) {
+        c->snap = SNAP_NONE;
+        client_move_resize(wm, c, c->sx, c->sy, c->sw, c->sh, true);
+        return;
+    }
+
+    if (c->snap == SNAP_NONE && !c->is_maximized) {
+        c->sx = c->x;
+        c->sy = c->y;
+        c->sw = c->w;
+        c->sh = c->h;
+    }
+
+    wm_usable_area(wm, &ux, &uy, &uw, &uh);
+    th = client_titlebar_height(wm, c);
+    bw = wm->config.border_width;
+    hw = uw / 2;
+
+    if (left) {
+        nx = ux + bw;
+        nw = hw - 2 * bw;
+    } else {
+        nx = ux + hw + bw;
+        nw = (uw - hw) - 2 * bw;
+    }
+
+    c->is_maximized = false;
+    c->snap = target;
+    client_move_resize(wm, c, nx, uy + th + bw, nw, uh - th - 2 * bw, false);
 }
 
 void
@@ -763,6 +808,10 @@ client_manage(WM *wm, Window win, bool existing)
             client_set_sticky(wm, c, true);
         if (rule->maximize)
             client_toggle_maximize(wm, c);
+        if (rule->snap_left)
+            client_snap_half(wm, c, true);
+        else if (rule->snap_right)
+            client_snap_half(wm, c, false);
         if (rule->fullscreen)
             client_set_fullscreen(wm, c, true);
     }

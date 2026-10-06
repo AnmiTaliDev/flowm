@@ -99,6 +99,8 @@ config_defaults(Config *cfg)
     add_binding(cfg, DEFMOD, XK_Down,  ACT_MOVE,  0,  1, NULL);
     add_binding(cfg, DEFMOD | ShiftMask, XK_Left,  ACT_RESIZE, -1,  0, NULL);
     add_binding(cfg, DEFMOD | ShiftMask, XK_Right, ACT_RESIZE,  1,  0, NULL);
+    add_binding(cfg, DEFMOD | ControlMask, XK_Left,  ACT_SNAP_LEFT,  0, 0, NULL);
+    add_binding(cfg, DEFMOD | ControlMask, XK_Right, ACT_SNAP_RIGHT, 0, 0, NULL);
     add_binding(cfg, DEFMOD | ShiftMask, XK_Up,    ACT_RESIZE,  0, -1, NULL);
     add_binding(cfg, DEFMOD | ShiftMask, XK_Down,  ACT_RESIZE,  0,  1, NULL);
 
@@ -227,6 +229,8 @@ config_parse_action(const char *action_str, Binding *b)
     if (str_ieq(verb, "maximize"))    { b->action = ACT_MAXIMIZE;   return true; }
     if (str_ieq(verb, "center"))      { b->action = ACT_CENTER;     return true; }
     if (str_ieq(verb, "sticky"))      { b->action = ACT_STICKY;     return true; }
+    if (str_ieq(verb, "snap_left") || str_ieq(verb, "tile_left"))   { b->action = ACT_SNAP_LEFT;  return true; }
+    if (str_ieq(verb, "snap_right") || str_ieq(verb, "tile_right")) { b->action = ACT_SNAP_RIGHT; return true; }
     if (str_ieq(verb, "raise"))       { b->action = ACT_RAISE;      return true; }
     if (str_ieq(verb, "lower"))       { b->action = ACT_LOWER;      return true; }
     if (str_ieq(verb, "focus_next"))  { b->action = ACT_FOCUS_NEXT; return true; }

@@ -152,8 +152,10 @@ begin_drag(WM *wm, Client *c, DragMode mode, int root_x, int root_y)
     wm->drag.start_w      = c->w;
     wm->drag.start_h      = c->h;
 
-    if (mode == DRAG_MOVE)
+    if (mode == DRAG_MOVE) {
         c->is_maximized = false;
+        c->snap = SNAP_NONE;
+    }
 
     log_debug("drag: begin %s on 0x%lx",
               mode == DRAG_MOVE ? "move" : "resize", c->win);

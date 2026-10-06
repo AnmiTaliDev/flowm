@@ -157,19 +157,25 @@ keys_run_action(WM *wm, const Binding *b)
         break;
 
     case ACT_MOVE:
-        if (c != NULL && !c->is_fullscreen)
+        if (c != NULL && !c->is_fullscreen) {
+            c->is_maximized = false;
+            c->snap = SNAP_NONE;
             client_move_resize(wm, c,
                                c->x + b->arg_int * wm->config.move_step,
                                c->y + b->arg_int2 * wm->config.move_step,
                                c->w, c->h, false);
+        }
         break;
 
     case ACT_RESIZE:
-        if (c != NULL && !c->is_fullscreen && !c->is_fixed)
+        if (c != NULL && !c->is_fullscreen && !c->is_fixed) {
+            c->is_maximized = false;
+            c->snap = SNAP_NONE;
             client_move_resize(wm, c, c->x, c->y,
                                c->w + b->arg_int * wm->config.resize_step,
                                c->h + b->arg_int2 * wm->config.resize_step,
                                true);
+        }
         break;
 
     case ACT_CENTER:
@@ -180,6 +186,16 @@ keys_run_action(WM *wm, const Binding *b)
     case ACT_STICKY:
         if (c != NULL)
             client_set_sticky(wm, c, !c->is_sticky);
+        break;
+
+    case ACT_SNAP_LEFT:
+        if (c != NULL)
+            client_snap_half(wm, c, true);
+        break;
+
+    case ACT_SNAP_RIGHT:
+        if (c != NULL)
+            client_snap_half(wm, c, false);
         break;
 
     case ACT_RAISE:
