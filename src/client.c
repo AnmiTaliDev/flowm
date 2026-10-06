@@ -439,11 +439,30 @@ client_toggle_maximize(WM *wm, Client *c)
 }
 
 void
+client_set_sticky(WM *wm, Client *c, bool sticky)
+{
+    if (sticky == c->is_sticky)
+        return;
+
+    c->is_sticky = sticky;
+    if (sticky) {
+        client_show(wm, c);
+    } else {
+        c->workspace = wm->current_ws;
+    }
+
+    ewmh_set_client_desktop(wm, c);
+    ewmh_set_sticky_state(wm, c, sticky);
+    bar_draw(wm);
+    log_debug("client 0x%lx sticky=%d", c->win, (int)sticky);
+}
+
+void
 client_focus(WM *wm, Client *c)
 {
     Client *previous = wm->focused;
 
-    if (c != NULL && (c->workspace != wm->current_ws || c->never_focus))
+    if (c != NULL && ((c->workspace != wm->current_ws && !c->is_sticky) || c->never_focus))
         return;
 
     wm->focused = c;
@@ -478,7 +497,7 @@ next_on_workspace(WM *wm, Client *from)
 
     while (guard++ < 2) {
         for (; c != NULL; c = c->next)
-            if (c->workspace == wm->current_ws && !c->never_focus)
+            if ((c->workspace == wm->current_ws || c->is_sticky) && !c->never_focus)
                 return c;
         c = wm->clients;
     }
@@ -491,13 +510,13 @@ prev_on_workspace(WM *wm, Client *from)
     Client *c, *best = NULL;
 
     for (c = wm->clients; c != NULL && c != from; c = c->next)
-        if (c->workspace == wm->current_ws && !c->never_focus)
+        if ((c->workspace == wm->current_ws || c->is_sticky) && !c->never_focus)
             best = c;
     if (best != NULL)
         return best;
 
     for (c = wm->clients; c != NULL; c = c->next)
-        if (c->workspace == wm->current_ws && !c->never_focus)
+        if ((c->workspace == wm->current_ws || c->is_sticky) && !c->never_focus)
             best = c;
     return best;
 }
@@ -546,15 +565,22 @@ client_hide(WM *wm, Client *c)
 void
 client_send_to_workspace(WM *wm, Client *c, int ws)
 {
-    if (ws < 0 || ws >= wm->config.workspace_count ||
-        ws == c->workspace)
+    if (ws < 0 || ws >= wm->config.workspace_count)
         return;
+    if (ws == c->workspace && !c->is_sticky)
+        return;
+
+    if (c->is_sticky) {
+        c->is_sticky = false;
+        ewmh_set_sticky_state(wm, c, false);
+    }
 
     c->workspace = ws;
     ewmh_set_client_desktop(wm, c);
-    client_hide(wm, c);
+    if (ws != wm->current_ws)
+        client_hide(wm, c);
 
-    if (wm->focused == c)
+    if (wm->focused == c && ws != wm->current_ws)
         client_focus(wm, next_on_workspace(wm, NULL));
 
     if (wm->workspaces[ws].focused == NULL)
@@ -601,7 +627,8 @@ place_client(WM *wm, Client *c, const XWindowAttributes *attrs)
         c->x = attrs->x;
         c->y = attrs->y;
     } else if (wm->focused != NULL &&
-               wm->focused->workspace == wm->current_ws) {
+               (wm->focused->workspace == wm->current_ws ||
+                wm->focused->is_sticky)) {
         c->x = wm->focused->x + 32;
         c->y = wm->focused->y + 32;
     } else {
@@ -732,13 +759,15 @@ client_manage(WM *wm, Window win, bool existing)
     client_raise(wm, c);
 
     if (rule != NULL) {
+        if (rule->sticky)
+            client_set_sticky(wm, c, true);
         if (rule->maximize)
             client_toggle_maximize(wm, c);
         if (rule->fullscreen)
             client_set_fullscreen(wm, c, true);
     }
 
-    if (c->workspace != wm->current_ws) {
+    if (c->workspace != wm->current_ws && !c->is_sticky) {
         client_hide(wm, c);
         ewmh_set_client_desktop(wm, c);
     } else {
@@ -756,6 +785,7 @@ void
 client_unmanage(WM *wm, Client *c, bool destroyed)
 {
     Client **link;
+    int i;
 
     log_info("unmanage: 0x%lx \"%s\" destroyed=%d",
              c->win, c->title, (int)destroyed);
@@ -766,8 +796,10 @@ client_unmanage(WM *wm, Client *c, bool destroyed)
             break;
         }
     }
-    if (wm->workspaces[c->workspace].focused == c)
-        wm->workspaces[c->workspace].focused = NULL;
+    for (i = 0; i < wm->config.workspace_count; i++) {
+        if (wm->workspaces[i].focused == c)
+            wm->workspaces[i].focused = NULL;
+    }
 
     if (!destroyed) {
         XGrabServer(wm->dpy);

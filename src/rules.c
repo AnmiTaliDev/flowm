@@ -95,6 +95,7 @@ apply_rule_option(Rule *r, const char *opt)
         if (str_ieq(opt, "center"))     { r->center = true;     return true; }
         if (str_ieq(opt, "maximize"))   { r->maximize = true;   return true; }
         if (str_ieq(opt, "fullscreen")) { r->fullscreen = true; return true; }
+        if (str_ieq(opt, "sticky"))     { r->sticky = true;     return true; }
         return false;
     }
 

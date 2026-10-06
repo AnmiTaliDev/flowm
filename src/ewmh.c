@@ -39,6 +39,7 @@ static const char *atom_names[ATOM_COUNT] = {
     [ATOM_NET_WM_STATE_FULLSCREEN] = "_NET_WM_STATE_FULLSCREEN",
     [ATOM_NET_WM_STATE_DEMANDS_ATTENTION] =
         "_NET_WM_STATE_DEMANDS_ATTENTION",
+    [ATOM_NET_WM_STATE_STICKY]   = "_NET_WM_STATE_STICKY",
     [ATOM_NET_WM_WINDOW_TYPE]    = "_NET_WM_WINDOW_TYPE",
     [ATOM_NET_WM_WINDOW_TYPE_DOCK] = "_NET_WM_WINDOW_TYPE_DOCK",
     [ATOM_NET_WM_WINDOW_TYPE_DESKTOP] = "_NET_WM_WINDOW_TYPE_DESKTOP",
@@ -107,6 +108,7 @@ ewmh_setup(WM *wm)
     supported[n++] = atoms[ATOM_NET_WM_STATE];
     supported[n++] = atoms[ATOM_NET_WM_STATE_FULLSCREEN];
     supported[n++] = atoms[ATOM_NET_WM_STATE_DEMANDS_ATTENTION];
+    supported[n++] = atoms[ATOM_NET_WM_STATE_STICKY];
     supported[n++] = atoms[ATOM_NET_WM_WINDOW_TYPE];
 
     XChangeProperty(wm->dpy, wm->root, atoms[ATOM_NET_SUPPORTED],
@@ -189,25 +191,46 @@ ewmh_update_desktops(WM *wm)
 void
 ewmh_set_client_desktop(WM *wm, Client *c)
 {
-    long ws = c->workspace;
+    long ws = c->is_sticky ? 0xFFFFFFFFL : (long)c->workspace;
 
     XChangeProperty(wm->dpy, c->win, atoms[ATOM_NET_WM_DESKTOP],
                     XA_CARDINAL, 32, PropModeReplace,
                     (unsigned char *)&ws, 1);
 }
 
-void
-ewmh_set_fullscreen_state(WM *wm, Client *c, bool fullscreen)
+static void
+update_net_wm_state(WM *wm, Client *c)
 {
-    if (fullscreen) {
-        Atom state = atoms[ATOM_NET_WM_STATE_FULLSCREEN];
+    Atom states[2];
+    int count = 0;
+
+    if (c->is_fullscreen)
+        states[count++] = atoms[ATOM_NET_WM_STATE_FULLSCREEN];
+    if (c->is_sticky)
+        states[count++] = atoms[ATOM_NET_WM_STATE_STICKY];
+
+    if (count > 0) {
         XChangeProperty(wm->dpy, c->win, atoms[ATOM_NET_WM_STATE],
                         XA_ATOM, 32, PropModeReplace,
-                        (unsigned char *)&state, 1);
+                        (unsigned char *)states, count);
     } else {
         XChangeProperty(wm->dpy, c->win, atoms[ATOM_NET_WM_STATE],
                         XA_ATOM, 32, PropModeReplace, NULL, 0);
     }
+}
+
+void
+ewmh_set_fullscreen_state(WM *wm, Client *c, bool fullscreen)
+{
+    (void)fullscreen;
+    update_net_wm_state(wm, c);
+}
+
+void
+ewmh_set_sticky_state(WM *wm, Client *c, bool sticky)
+{
+    (void)sticky;
+    update_net_wm_state(wm, c);
 }
 
 void

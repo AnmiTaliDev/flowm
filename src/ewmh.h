@@ -31,6 +31,7 @@ typedef enum AtomId {
     ATOM_NET_WM_STATE,
     ATOM_NET_WM_STATE_FULLSCREEN,
     ATOM_NET_WM_STATE_DEMANDS_ATTENTION,
+    ATOM_NET_WM_STATE_STICKY,
     ATOM_NET_WM_WINDOW_TYPE,
     ATOM_NET_WM_WINDOW_TYPE_DOCK,
     ATOM_NET_WM_WINDOW_TYPE_DESKTOP,
@@ -66,6 +67,9 @@ void ewmh_set_client_desktop(struct WM *wm, struct Client *c);
 
 void ewmh_set_fullscreen_state(struct WM *wm, struct Client *c,
                                bool fullscreen);
+
+void ewmh_set_sticky_state(struct WM *wm, struct Client *c,
+                            bool sticky);
 
 void ewmh_set_wm_state(struct WM *wm, struct Client *c, long state);
 

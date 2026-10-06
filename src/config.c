@@ -85,6 +85,7 @@ config_defaults(Config *cfg)
     add_binding(cfg, DEFMOD, XK_f, ACT_FULLSCREEN, 0, 0, NULL);
     add_binding(cfg, DEFMOD, XK_m, ACT_MAXIMIZE,   0, 0, NULL);
     add_binding(cfg, DEFMOD, XK_c, ACT_CENTER,     0, 0, NULL);
+    add_binding(cfg, DEFMOD, XK_s, ACT_STICKY,     0, 0, NULL);
 
     add_binding(cfg, DEFMOD,             XK_Tab, ACT_FOCUS_NEXT, 0, 0, NULL);
     add_binding(cfg, DEFMOD | ShiftMask, XK_Tab, ACT_FOCUS_PREV, 0, 0, NULL);
@@ -160,10 +161,13 @@ config_parse_chord(const char *chord, unsigned int *mods_out,
     for (token = strtok_r(buf, "+", &save);
          token != NULL;
          token = strtok_r(NULL, "+", &save)) {
-        size_t i;
         bool is_mod = false;
+        size_t i;
 
         token = str_trim(token);
+        if (*token == '\0')
+            continue;
+
         for (i = 0; i < LENGTH(mod_names); i++) {
             if (str_ieq(token, mod_names[i].name)) {
                 mods |= mod_names[i].mask;
@@ -176,6 +180,7 @@ config_parse_chord(const char *chord, unsigned int *mods_out,
 
         if (sym != NoSymbol)
             return false;
+
         sym = XStringToKeysym(token);
         if (sym == NoSymbol)
             return false;
@@ -190,26 +195,23 @@ config_parse_chord(const char *chord, unsigned int *mods_out,
 }
 
 bool
-config_parse_action(const char *spec, Binding *b)
+config_parse_action(const char *action_str, Binding *b)
 {
-    char buf[FLOWM_LINE_MAX];
+    char buf[256];
     char *verb, *rest;
 
-    if (spec == NULL || b == NULL)
+    if (action_str == NULL || b == NULL)
         return false;
 
-    xstrlcpy(buf, spec, sizeof(buf));
+    memset(b, 0, sizeof(*b));
+    xstrlcpy(buf, action_str, sizeof(buf));
+
     verb = str_trim(buf);
     rest = strchr(verb, ' ');
     if (rest != NULL) {
         *rest++ = '\0';
         rest = str_trim(rest);
     }
-
-    b->action  = ACT_NONE;
-    b->arg_int = 0;
-    b->arg_int2 = 0;
-    b->arg_str = NULL;
 
     if (str_ieq(verb, "exec")) {
         if (rest == NULL || *rest == '\0')
@@ -224,6 +226,7 @@ config_parse_action(const char *spec, Binding *b)
     if (str_ieq(verb, "fullscreen"))  { b->action = ACT_FULLSCREEN; return true; }
     if (str_ieq(verb, "maximize"))    { b->action = ACT_MAXIMIZE;   return true; }
     if (str_ieq(verb, "center"))      { b->action = ACT_CENTER;     return true; }
+    if (str_ieq(verb, "sticky"))      { b->action = ACT_STICKY;     return true; }
     if (str_ieq(verb, "raise"))       { b->action = ACT_RAISE;      return true; }
     if (str_ieq(verb, "lower"))       { b->action = ACT_LOWER;      return true; }
     if (str_ieq(verb, "focus_next"))  { b->action = ACT_FOCUS_NEXT; return true; }

@@ -40,7 +40,7 @@ Options: `-c FILE` (explicit config), `-d` (debug logging to stderr),
 | `Mod4+Return` | spawn `xterm` |
 | `Mod4+d` | spawn `dmenu_run` |
 | `Mod4+q` / `Mod4+Shift+q` | close / kill window |
-| `Mod4+f` / `Mod4+m` / `Mod4+c` | fullscreen / maximize / center |
+| `Mod4+f` / `Mod4+m` / `Mod4+c` / `Mod4+s` | fullscreen / maximize / center / sticky |
 | `Mod4+Tab` / `Mod4+Shift+Tab` | cycle focus |
 | `Mod4+r` / `Mod4+l` | raise / lower |
 | `Mod4+Arrows` | move window |

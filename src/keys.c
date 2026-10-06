@@ -177,6 +177,11 @@ keys_run_action(WM *wm, const Binding *b)
             client_center(wm, c);
         break;
 
+    case ACT_STICKY:
+        if (c != NULL)
+            client_set_sticky(wm, c, !c->is_sticky);
+        break;
+
     case ACT_RAISE:
         if (c != NULL)
             client_raise(wm, c);

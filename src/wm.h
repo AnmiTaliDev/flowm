@@ -43,6 +43,7 @@ typedef struct Client {
 
     bool is_fullscreen;
     bool is_maximized;
+    bool is_sticky;
     bool is_mapped;
     bool never_focus;
     bool takes_wm_focus;
@@ -71,6 +72,7 @@ typedef enum ActionType {
     ACT_MOVE,
     ACT_RESIZE,
     ACT_CENTER,
+    ACT_STICKY,
     ACT_RAISE,
     ACT_LOWER
 } ActionType;

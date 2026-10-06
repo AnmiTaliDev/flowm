@@ -128,6 +128,9 @@ test_parse_action(void)
     CHECK(config_parse_action("fullscreen", &b));
     CHECK(b.action == ACT_FULLSCREEN);
 
+    CHECK(config_parse_action("sticky", &b));
+    CHECK(b.action == ACT_STICKY);
+
     CHECK(!config_parse_action("workspace 0", &b));     /* 1-based   */
     CHECK(!config_parse_action("workspace 99", &b));    /* too big   */
     CHECK(!config_parse_action("exec", &b));            /* no cmd    */
@@ -164,14 +167,18 @@ test_rule_lines(void)
     CHECK(rs.rules[1].set_size);
     CHECK(rs.rules[1].width == 960 && rs.rules[1].height == 540);
 
+    CHECK(rules_parse_line(&rs, "mpv sticky"));
+    CHECK(rs.count == 3);
+    CHECK(rs.rules[2].sticky);
+
     CHECK(rules_parse_line(&rs, "xterm position=10:20"));
-    CHECK(rs.rules[2].set_position);
-    CHECK(rs.rules[2].x == 10 && rs.rules[2].y == 20);
+    CHECK(rs.rules[3].set_position);
+    CHECK(rs.rules[3].x == 10 && rs.rules[3].y == 20);
 
     CHECK(!rules_parse_line(&rs, "NoOptionsHere"));
     CHECK(!rules_parse_line(&rs, "app bogus=1"));
     CHECK(!rules_parse_line(&rs, "app size=abc"));
-    CHECK(rs.count == 3);
+    CHECK(rs.count == 4);
 }
 
 static void

@@ -45,6 +45,8 @@ void client_set_fullscreen(WM *wm, Client *c, bool fullscreen);
 
 void client_toggle_maximize(WM *wm, Client *c);
 
+void client_set_sticky(WM *wm, Client *c, bool sticky);
+
 void client_center(WM *wm, Client *c);
 
 void client_close(WM *wm, Client *c);

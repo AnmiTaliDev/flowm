@@ -69,20 +69,24 @@ workspace_switch(WM *wm, int ws)
     wm->current_ws = ws;
 
     for (c = wm->clients; c != NULL; c = c->next)
-        if (c->workspace == ws)
+        if (c->workspace == ws || c->is_sticky)
             client_show(wm, c);
     for (c = wm->clients; c != NULL; c = c->next)
-        if (c->workspace != ws)
+        if (c->workspace != ws && !c->is_sticky)
             client_hide(wm, c);
 
     to_focus = wm->workspaces[ws].focused;
-    if (to_focus != NULL && to_focus->workspace != ws)
+    if (to_focus != NULL && to_focus->workspace != ws && !to_focus->is_sticky)
         to_focus = NULL;
     if (to_focus == NULL) {
-        for (c = wm->clients; c != NULL; c = c->next) {
-            if (c->workspace == ws && !c->never_focus) {
-                to_focus = c;
-                break;
+        if (wm->focused != NULL && wm->focused->is_sticky) {
+            to_focus = wm->focused;
+        } else {
+            for (c = wm->clients; c != NULL; c = c->next) {
+                if ((c->workspace == ws || c->is_sticky) && !c->never_focus) {
+                    to_focus = c;
+                    break;
+                }
             }
         }
     }

@@ -375,13 +375,21 @@ handle_client_message(WM *wm, XClientMessageEvent *ev)
                          !c->is_urgent);
             client_set_urgent(wm, c, want);
         }
+        if (a1 == ewmh_atom(ATOM_NET_WM_STATE_STICKY) ||
+            a2 == ewmh_atom(ATOM_NET_WM_STATE_STICKY)) {
+            long action = ev->data.l[0];
+            bool want = action == NET_WM_STATE_ADD ||
+                        (action == NET_WM_STATE_TOGGLE &&
+                         !c->is_sticky);
+            client_set_sticky(wm, c, want);
+        }
         return;
     }
 
     if (ev->message_type == ewmh_atom(ATOM_NET_ACTIVE_WINDOW)) {
         if (c == NULL)
             return;
-        if (c->workspace != wm->current_ws)
+        if (!c->is_sticky && c->workspace != wm->current_ws)
             workspace_switch(wm, c->workspace);
         client_raise(wm, c);
         client_focus(wm, c);
@@ -390,6 +398,21 @@ handle_client_message(WM *wm, XClientMessageEvent *ev)
 
     if (ev->message_type == ewmh_atom(ATOM_NET_CURRENT_DESKTOP)) {
         workspace_switch(wm, (int)ev->data.l[0]);
+        return;
+    }
+
+    if (ev->message_type == ewmh_atom(ATOM_NET_WM_DESKTOP)) {
+        unsigned long target;
+
+        if (c == NULL)
+            return;
+        target = (unsigned long)ev->data.l[0];
+        if (target == 0xFFFFFFFFUL || (long)target == -1) {
+            client_set_sticky(wm, c, true);
+        } else if (target < (unsigned long)wm->config.workspace_count) {
+            client_set_sticky(wm, c, false);
+            client_send_to_workspace(wm, c, (int)target);
+        }
         return;
     }
 }

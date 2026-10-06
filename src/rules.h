@@ -23,6 +23,7 @@ typedef struct Rule {
     bool center;
     bool maximize;
     bool fullscreen;
+    bool sticky;
 
     bool set_size;
     int  width, height;
