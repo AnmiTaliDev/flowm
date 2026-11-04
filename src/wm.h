@@ -118,6 +118,7 @@ typedef struct Config {
     char font_name[128];
     char log_path[512];
     LogLevel log_level;
+    int parse_errors;
 
     Binding bindings[FLOWM_MAX_BINDINGS];
     int     binding_count;

@@ -545,6 +545,7 @@ config_load(Config *cfg, const char *explicit_path)
 
     fclose(fp);
 
+    cfg->parse_errors = errors;
     if (errors > 0)
         log_warn("config: %d error(s) in %s, offending lines ignored",
                  errors, path);

@@ -27,6 +27,7 @@ print_usage(FILE *out)
         "  -c FILE   read configuration from FILE instead of\n"
         "            $XDG_CONFIG_HOME/flowm/flowm.conf\n"
         "  -d        enable debug logging to stderr\n"
+        "  -t        check the configuration, report errors and exit\n"
         "  -v        print version and exit\n"
         "  -h        show this help and exit\n"
         "\n"
@@ -45,16 +46,20 @@ main(int argc, char **argv)
 {
     const char *config_path = NULL;
     bool debug = false;
+    bool check_only = false;
     int opt;
     WM wm;
 
-    while ((opt = getopt(argc, argv, "c:dvh")) != -1) {
+    while ((opt = getopt(argc, argv, "c:dtvh")) != -1) {
         switch (opt) {
         case 'c':
             config_path = optarg;
             break;
         case 'd':
             debug = true;
+            break;
+        case 't':
+            check_only = true;
             break;
         case 'v':
             print_version();
@@ -76,6 +81,17 @@ main(int argc, char **argv)
     }
 
     log_init(NULL, debug ? LOG_DEBUG : LOG_INFO, true);
+
+    if (check_only) {
+        Config cfg;
+        bool ok;
+
+        config_defaults(&cfg);
+        ok = config_load(&cfg, config_path) && cfg.parse_errors == 0;
+        config_free(&cfg);
+        log_shutdown();
+        return ok ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
 
     if (!wm_init(&wm, config_path)) {
         log_shutdown();
