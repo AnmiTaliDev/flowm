@@ -75,8 +75,7 @@ typedef enum ActionType {
     ACT_RESIZE,
     ACT_CENTER,
     ACT_STICKY,
-    ACT_SNAP_LEFT,
-    ACT_SNAP_RIGHT,
+    ACT_SNAP,
     ACT_RAISE,
     ACT_LOWER
 } ActionType;

@@ -188,14 +188,9 @@ keys_run_action(WM *wm, const Binding *b)
             client_set_sticky(wm, c, !c->is_sticky);
         break;
 
-    case ACT_SNAP_LEFT:
+    case ACT_SNAP:
         if (c != NULL)
-            client_snap_half(wm, c, true);
-        break;
-
-    case ACT_SNAP_RIGHT:
-        if (c != NULL)
-            client_snap_half(wm, c, false);
+            client_snap(wm, c, (ClientSnap)b->arg_int);
         break;
 
     case ACT_RAISE:

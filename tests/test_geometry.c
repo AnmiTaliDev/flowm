@@ -21,6 +21,19 @@ static int tests_failed = 0;
     } while (0)
 
 static void
+test_snap_names(void)
+{
+    ClientSnap s = SNAP_NONE;
+
+    CHECK(geometry_snap_from_name("snap_left", &s) && s == SNAP_LEFT);
+    CHECK(geometry_snap_from_name("tile_left", &s) && s == SNAP_LEFT);
+    CHECK(geometry_snap_from_name("SNAP_RIGHT", &s) && s == SNAP_RIGHT);
+    CHECK(geometry_snap_from_name("tile_right", &s) && s == SNAP_RIGHT);
+    CHECK(!geometry_snap_from_name("snap", &s));
+    CHECK(!geometry_snap_from_name("", &s));
+}
+
+static void
 test_snap_rect_halves(void)
 {
     int x, y, w, h;
@@ -74,6 +87,7 @@ test_snap_edges(void)
 int
 main(void)
 {
+    test_snap_names();
     test_snap_rect_halves();
     test_snap_rect_odd_sizes();
     test_snap_edges();

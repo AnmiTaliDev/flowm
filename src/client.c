@@ -429,13 +429,12 @@ client_toggle_maximize(WM *wm, Client *c)
 }
 
 void
-client_snap_half(WM *wm, Client *c, bool left)
+client_snap(WM *wm, Client *c, ClientSnap target)
 {
-    ClientSnap target = left ? SNAP_LEFT : SNAP_RIGHT;
     int ux, uy, uw, uh;
     int nx, ny, nw, nh;
 
-    if (c->is_fullscreen)
+    if (c->is_fullscreen || target == SNAP_NONE)
         return;
 
     if (c->snap == target) {
@@ -787,9 +786,9 @@ client_manage(WM *wm, Window win, bool existing)
         if (rule->maximize)
             client_toggle_maximize(wm, c);
         if (rule->snap_left)
-            client_snap_half(wm, c, true);
+            client_snap(wm, c, SNAP_LEFT);
         else if (rule->snap_right)
-            client_snap_half(wm, c, false);
+            client_snap(wm, c, SNAP_RIGHT);
         if (rule->fullscreen)
             client_set_fullscreen(wm, c, true);
     }

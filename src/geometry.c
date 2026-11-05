@@ -5,6 +5,32 @@
 #include "geometry.h"
 #include "util.h"
 
+typedef struct SnapName {
+    const char *name;
+    ClientSnap  snap;
+} SnapName;
+
+static const SnapName snap_names[] = {
+    { "snap_left",         SNAP_LEFT         },
+    { "tile_left",         SNAP_LEFT         },
+    { "snap_right",        SNAP_RIGHT        },
+    { "tile_right",        SNAP_RIGHT        },
+};
+
+bool
+geometry_snap_from_name(const char *name, ClientSnap *out)
+{
+    size_t i;
+
+    for (i = 0; i < LENGTH(snap_names); i++) {
+        if (str_ieq(name, snap_names[i].name)) {
+            *out = snap_names[i].snap;
+            return true;
+        }
+    }
+    return false;
+}
+
 void
 geometry_snap_rect(ClientSnap snap, int ux, int uy, int uw, int uh,
                    int th, int bw, int *x, int *y, int *w, int *h)

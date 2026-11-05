@@ -57,10 +57,11 @@ test: $(TEST_BIN)
 	./tests/test_geometry
 
 tests/test_parsers: tests/test_parsers.c src/config.c src/rules.c \
-                    src/util.c src/log.c
+                    src/util.c src/log.c src/geometry.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-tests/test_geometry: tests/test_geometry.c src/geometry.c
+tests/test_geometry: tests/test_geometry.c src/geometry.c src/util.c \
+                    src/log.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 UTILS_BIN = utils/panelctl

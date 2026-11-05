@@ -132,16 +132,16 @@ test_parse_action(void)
     CHECK(b.action == ACT_STICKY);
 
     CHECK(config_parse_action("snap_left", &b));
-    CHECK(b.action == ACT_SNAP_LEFT);
+    CHECK(b.action == ACT_SNAP && b.arg_int == SNAP_LEFT);
 
     CHECK(config_parse_action("snap_right", &b));
-    CHECK(b.action == ACT_SNAP_RIGHT);
+    CHECK(b.action == ACT_SNAP && b.arg_int == SNAP_RIGHT);
 
     CHECK(config_parse_action("tile_left", &b));
-    CHECK(b.action == ACT_SNAP_LEFT);
+    CHECK(b.action == ACT_SNAP && b.arg_int == SNAP_LEFT);
 
     CHECK(config_parse_action("tile_right", &b));
-    CHECK(b.action == ACT_SNAP_RIGHT);
+    CHECK(b.action == ACT_SNAP && b.arg_int == SNAP_RIGHT);
 
     CHECK(!config_parse_action("workspace 0", &b));     /* 1-based   */
     CHECK(!config_parse_action("workspace 99", &b));    /* too big   */
