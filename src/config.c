@@ -104,6 +104,7 @@ config_defaults(Config *cfg)
     add_binding(cfg, DEFMOD | ControlMask, XK_Right, ACT_SNAP, SNAP_RIGHT,  0, NULL);
     add_binding(cfg, DEFMOD | ControlMask, XK_Up,    ACT_SNAP, SNAP_TOP,    0, NULL);
     add_binding(cfg, DEFMOD | ControlMask, XK_Down,  ACT_SNAP, SNAP_BOTTOM, 0, NULL);
+    add_binding(cfg, DEFMOD, XK_BackSpace, ACT_FOCUS_LAST, 0, 0, NULL);
     add_binding(cfg, DEFMOD | ShiftMask, XK_Up,    ACT_RESIZE,  0, -1, NULL);
     add_binding(cfg, DEFMOD | ShiftMask, XK_Down,  ACT_RESIZE,  0,  1, NULL);
 
