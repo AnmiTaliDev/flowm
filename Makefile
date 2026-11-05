@@ -3,6 +3,7 @@ PREFIX  ?= /usr/local
 BINDIR   = $(PREFIX)/bin
 MANDIR   = $(PREFIX)/share/man/man1
 DOCDIR   = $(PREFIX)/share/doc/flowm
+SESSIONDIR = $(PREFIX)/share/xsessions
 
 CC      ?= cc
 PKGCFG  ?= pkg-config
@@ -45,11 +46,13 @@ install: $(BIN)
 	install -Dm755 $(BIN) $(DESTDIR)$(BINDIR)/$(BIN)
 	install -Dm644 flowm.1 $(DESTDIR)$(MANDIR)/flowm.1
 	install -Dm644 flowm.conf $(DESTDIR)$(DOCDIR)/flowm.conf
+	install -Dm644 flowm.desktop $(DESTDIR)$(SESSIONDIR)/flowm.desktop
 
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/$(BIN)
 	rm -f $(DESTDIR)$(MANDIR)/flowm.1
 	rm -f $(DESTDIR)$(DOCDIR)/flowm.conf
+	rm -f $(DESTDIR)$(SESSIONDIR)/flowm.desktop
 
 TEST_BIN = tests/test_parsers tests/test_geometry
 

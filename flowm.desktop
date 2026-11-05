@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=flowm
+Comment=Floating window manager for X11
+Exec=flowm
+TryExec=flowm
+Type=Application

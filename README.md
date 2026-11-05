@@ -37,6 +37,9 @@ Options: `-c FILE` (explicit config), `-d` (debug logging to stderr),
 `panelctl get workspace|focused|windows`, or `panelctl key=value ...` to
 change options live. Build it with `make utils`.
 
+The `flowm.desktop` session file is installed to
+`share/xsessions` by `make install`.
+
 ## Default key bindings
 
 | Chord | Action |
