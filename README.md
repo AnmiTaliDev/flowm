@@ -46,6 +46,7 @@ Options: `-c FILE` (explicit config), `-d` (debug logging to stderr),
 | `Mod4+Arrows` | move window |
 | `Mod4+Shift+Arrows` | resize window |
 | `Mod4+Ctrl+Left` / `Mod4+Ctrl+Right` | snap to left / right half |
+| `Mod4+Ctrl+Up` / `Mod4+Ctrl+Down` | snap to top / bottom half |
 | `Mod4+1..9` | switch workspace |
 | `Mod4+Shift+1..9` | send window to workspace |
 | `Mod4+.` / `Mod4+,` | next / previous workspace |
