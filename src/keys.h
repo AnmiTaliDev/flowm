@@ -15,6 +15,8 @@ void keys_grab(WM *wm);
 
 void keys_ungrab(WM *wm);
 
+void keys_set_mode(WM *wm, const char *mode);
+
 void keys_handle_keypress(WM *wm, XKeyEvent *ev);
 
 void keys_run_action(WM *wm, const Binding *b);

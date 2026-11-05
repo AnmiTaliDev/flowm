@@ -6,6 +6,8 @@
 
 #define _POSIX_C_SOURCE 200809L
 
+#include <string.h>
+
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
@@ -14,6 +16,7 @@
 #include "client.h"
 #include "workspace.h"
 #include "scratchpad.h"
+#include "bar.h"
 #include "log.h"
 #include "util.h"
 
@@ -73,7 +76,7 @@ keys_grab(WM *wm)
         const Binding *b = &wm->config.bindings[i];
         KeyCode code;
 
-        if (b->mode[0] != '\0')
+        if (strcmp(b->mode, wm->mode) != 0)
             continue;
 
         code = XKeysymToKeycode(wm->dpy, b->keysym);
@@ -92,7 +95,29 @@ keys_grab(WM *wm)
         }
     }
 
-    log_info("keys: grabbed %d bindings", wm->config.binding_count);
+    log_info("keys: grabbed bindings for mode '%s'",
+             wm->mode[0] != '\0' ? wm->mode : "default");
+}
+
+void
+keys_set_mode(WM *wm, const char *mode)
+{
+    bool found = mode[0] == '\0';
+    int i;
+
+    for (i = 0; i < wm->config.binding_count && !found; i++)
+        if (strcmp(wm->config.bindings[i].mode, mode) == 0)
+            found = true;
+
+    if (!found) {
+        log_warn("keys: mode '%s' has no bindings, staying in '%s'",
+                 mode, wm->mode[0] != '\0' ? wm->mode : "default");
+        return;
+    }
+
+    xstrlcpy(wm->mode, mode, sizeof(wm->mode));
+    keys_grab(wm);
+    bar_draw(wm);
 }
 
 void
@@ -206,6 +231,10 @@ keys_run_action(WM *wm, const Binding *b)
         scratchpad_toggle(wm);
         break;
 
+    case ACT_MODE:
+        keys_set_mode(wm, b->arg_str);
+        break;
+
     case ACT_RAISE:
         if (c != NULL)
             client_raise(wm, c);
@@ -237,7 +266,7 @@ keys_handle_keypress(WM *wm, XKeyEvent *ev)
     for (i = 0; i < wm->config.binding_count; i++) {
         const Binding *b = &wm->config.bindings[i];
 
-        if (b->mode[0] == '\0' && b->keysym == sym &&
+        if (strcmp(b->mode, wm->mode) == 0 && b->keysym == sym &&
             b->modifiers == clean_mods) {
             log_debug("keys: chord matched, action=%d", (int)b->action);
             keys_run_action(wm, b);

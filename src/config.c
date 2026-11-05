@@ -265,6 +265,14 @@ config_parse_action(const char *action_str, Binding *b)
     if (str_ieq(verb, "workspace_next")) { b->action = ACT_WORKSPACE_NEXT; return true; }
     if (str_ieq(verb, "workspace_prev")) { b->action = ACT_WORKSPACE_PREV; return true; }
 
+    if (str_ieq(verb, "mode")) {
+        if (rest == NULL || !mode_name_valid(rest, true))
+            return false;
+        b->action  = ACT_MODE;
+        b->arg_str = xstrdup(str_ieq(rest, "default") ? "" : rest);
+        return true;
+    }
+
     if (str_ieq(verb, "workspace") || str_ieq(verb, "send_to_workspace")) {
         long n;
         if (!parse_long(rest != NULL ? rest : "", 1,

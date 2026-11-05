@@ -156,6 +156,17 @@ test_parse_action(void)
     CHECK(config_parse_action("scratchpad", &b));
     CHECK(b.action == ACT_SCRATCHPAD);
 
+    CHECK(config_parse_action("mode resize", &b));
+    CHECK(b.action == ACT_MODE && strcmp(b.arg_str, "resize") == 0);
+    free(b.arg_str);
+
+    CHECK(config_parse_action("mode default", &b));
+    CHECK(b.action == ACT_MODE && b.arg_str[0] == '\0');
+    free(b.arg_str);
+
+    CHECK(!config_parse_action("mode", &b));
+    CHECK(!config_parse_action("mode bad/name", &b));
+
     CHECK(!config_parse_action("workspace 0", &b));     /* 1-based   */
     CHECK(!config_parse_action("workspace 99", &b));    /* too big   */
     CHECK(!config_parse_action("exec", &b));            /* no cmd    */
@@ -296,7 +307,9 @@ test_config_files(void)
     write_file(main_path,
                "include = extra.conf\n"
                "unbind = Mod4+q\n"
-               "mode_bind = resize Left resize -1 0\n");
+               "mode_bind = resize Left resize -1 0\n"
+               "mode_bind = resize Escape mode default\n"
+               "bind = Mod4+r mode resize\n");
 
     config_defaults(&cfg);
     CHECK(config_load(&cfg, main_path));
@@ -312,6 +325,10 @@ test_config_files(void)
     b = find_binding(&cfg, "resize", 0, XK_Left);
     CHECK(b != NULL && b->action == ACT_RESIZE && b->arg_int == -1);
     CHECK(find_binding(&cfg, "", 0, XK_Left) == NULL);
+    b = find_binding(&cfg, "resize", 0, XK_Escape);
+    CHECK(b != NULL && b->action == ACT_MODE && b->arg_str[0] == '\0');
+    b = find_binding(&cfg, "", Mod4Mask, XK_r);
+    CHECK(b != NULL && b->action == ACT_MODE);
     config_free(&cfg);
 
     write_file(main_path,

@@ -87,7 +87,8 @@ typedef enum ActionType {
     ACT_RAISE,
     ACT_LOWER,
     ACT_FOCUS_LAST,
-    ACT_SCRATCHPAD
+    ACT_SCRATCHPAD,
+    ACT_MODE
 } ActionType;
 
 typedef struct Binding {
@@ -181,6 +182,8 @@ typedef struct WM {
     Client *focused;
     Client *scratch;
     unsigned long focus_counter;
+
+    char  mode[FLOWM_MODE_MAX];
 
     Strut struts[FLOWM_MAX_STRUTS];
     int   strut_count;
