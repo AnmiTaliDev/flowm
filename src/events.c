@@ -19,6 +19,7 @@
 #include "keys.h"
 #include "bar.h"
 #include "workspace.h"
+#include "ipc.h"
 #include "log.h"
 #include "util.h"
 
@@ -286,26 +287,6 @@ handle_enter_notify(WM *wm, XCrossingEvent *ev)
 }
 
 static void
-handle_ipc_command(WM *wm)
-{
-    unsigned char *data = NULL;
-    Atom type;
-    int format;
-    unsigned long nitems, after;
-
-    if (XGetWindowProperty(wm->dpy, wm->root, ewmh_atom(ATOM_FLOWM_CMD),
-                           0, 4096 / 4, True, AnyPropertyType,
-                           &type, &format, &nitems, &after,
-                           &data) != Success || data == NULL)
-        return;
-
-    if (nitems > 0)
-        wm_apply_config_string(wm, (const char *)data);
-
-    XFree(data);
-}
-
-static void
 handle_property_notify(WM *wm, XPropertyEvent *ev)
 {
     Client *c;
@@ -313,7 +294,7 @@ handle_property_notify(WM *wm, XPropertyEvent *ev)
     if (ev->window == wm->root) {
         if (ev->atom == ewmh_atom(ATOM_FLOWM_CMD) &&
             ev->state == PropertyNewValue)
-            handle_ipc_command(wm);
+            ipc_handle_property(wm);
         return;
     }
 
