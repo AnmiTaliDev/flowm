@@ -33,6 +33,10 @@ exec flowm
 Options: `-c FILE` (explicit config), `-d` (debug logging to stderr),
 `-t` (check the configuration and exit), `-v` (version), `-h` (help).
 
+`utils/panelctl` talks to a running flowm: `panelctl reload`,
+`panelctl get workspace|focused|windows`, or `panelctl key=value ...` to
+change options live. Build it with `make utils`.
+
 ## Default key bindings
 
 | Chord | Action |

@@ -106,6 +106,25 @@ Switch to / send window to workspace.
 .B Mod4+Shift+e
 Quit
 .BR flowm .
+.SH IPC
+.B utils/panelctl
+writes commands to the
+.B _FLOWM_CMD
+property of the root window.  Lines of the form
+.B key=value
+change a configuration option.
+.B reload
+reloads the configuration file.
+.B get workspace
+,
+.B get focused
+and
+.B get windows
+store a tab separated answer in the
+.B _FLOWM_REPLY
+root window property, which
+.B panelctl get
+prints.
 .SH SIGNALS
 .TP
 .B SIGHUP
