@@ -31,7 +31,7 @@ exec flowm
 ```
 
 Options: `-c FILE` (explicit config), `-d` (debug logging to stderr),
-`-v` (version), `-h` (help).
+`-t` (check the configuration and exit), `-v` (version), `-h` (help).
 
 ## Default key bindings
 
