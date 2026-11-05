@@ -167,6 +167,7 @@ typedef struct WM {
 
     Client *clients;
     Client *focused;
+    Client *scratch;
     unsigned long focus_counter;
 
     Drag drag;

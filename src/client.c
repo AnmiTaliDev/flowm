@@ -845,6 +845,9 @@ client_unmanage(WM *wm, Client *c, bool destroyed)
     log_info("unmanage: 0x%lx \"%s\" destroyed=%d",
              c->win, c->title, (int)destroyed);
 
+    if (wm->scratch == c)
+        wm->scratch = NULL;
+
     for (link = &wm->clients; *link != NULL; link = &(*link)->next) {
         if (*link == c) {
             *link = c->next;
