@@ -488,6 +488,8 @@ client_focus(WM *wm, Client *c)
         return;
 
     wm->focused = c;
+    if (c != NULL)
+        c->focus_seq = ++wm->focus_counter;
 
     if (previous != NULL && previous != c)
         client_update_decor_colors(wm, previous);

@@ -52,6 +52,8 @@ typedef struct Client {
     bool deletes_window;
     bool is_urgent;
 
+    unsigned long focus_seq;
+
     int ignore_unmaps;
 
     struct Client *next;
@@ -162,6 +164,7 @@ typedef struct WM {
 
     Client *clients;
     Client *focused;
+    unsigned long focus_counter;
 
     Drag drag;
     Bar  bar;
