@@ -477,8 +477,46 @@ open_config_file(const char *explicit_path, char *used, size_t used_size)
     return NULL;
 }
 
+#define MAX_INCLUDE_DEPTH 4
+
+static int load_stream(Config *cfg, FILE *fp, const char *path, int depth);
+
 static int
-load_stream(Config *cfg, FILE *fp, const char *path)
+load_include(Config *cfg, const char *base_path, const char *value,
+             int depth)
+{
+    char full[512];
+    const char *slash;
+    FILE *fp;
+    int errors;
+
+    if (depth >= MAX_INCLUDE_DEPTH) {
+        log_warn("config: include depth limit (%d) reached at '%s'",
+                 MAX_INCLUDE_DEPTH, value);
+        return 1;
+    }
+
+    slash = strrchr(base_path, '/');
+    if (value[0] == '/' || slash == NULL)
+        xstrlcpy(full, value, sizeof(full));
+    else
+        snprintf(full, sizeof(full), "%.*s/%s",
+                 (int)(slash - base_path), base_path, value);
+
+    fp = fopen(full, "r");
+    if (fp == NULL) {
+        log_warn("config: cannot open included file '%s'", full);
+        return 1;
+    }
+
+    log_info("config: including %s", full);
+    errors = load_stream(cfg, fp, full, depth + 1);
+    fclose(fp);
+    return errors;
+}
+
+static int
+load_stream(Config *cfg, FILE *fp, const char *path, int depth)
 {
     char line[FLOWM_LINE_MAX];
     int lineno = 0;
@@ -512,6 +550,11 @@ load_stream(Config *cfg, FILE *fp, const char *path)
         if (*key == '\0' || *value == '\0') {
             log_warn("config:%s:%d: empty key or value", path, lineno);
             errors++;
+            continue;
+        }
+
+        if (str_ieq(key, "include")) {
+            errors += load_include(cfg, path, value, depth);
             continue;
         }
 
@@ -562,7 +605,7 @@ config_load(Config *cfg, const char *explicit_path)
 
     log_info("config: loading %s", path);
 
-    errors = load_stream(cfg, fp, path);
+    errors = load_stream(cfg, fp, path, 0);
     fclose(fp);
 
     cfg->parse_errors = errors;

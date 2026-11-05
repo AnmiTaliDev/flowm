@@ -244,6 +244,20 @@ test_config_defaults_roundtrip(void)
     CHECK(cfg.binding_count == 0);
 }
 
+static const Binding *
+find_binding(const Config *cfg, unsigned int mods, unsigned long sym)
+{
+    int i;
+
+    for (i = 0; i < cfg->binding_count; i++) {
+        const Binding *b = &cfg->bindings[i];
+
+        if (b->modifiers == mods && b->keysym == sym)
+            return b;
+    }
+    return NULL;
+}
+
 static void
 write_file(const char *path, const char *text)
 {
@@ -259,9 +273,10 @@ static void
 test_config_files(void)
 {
     char dir[256];
-    char main_path[300];
+    char main_path[300], inc_path[300], loop_path[300];
     const char *tmp = getenv("TMPDIR");
     Config cfg;
+    const Binding *b;
 
     snprintf(dir, sizeof(dir), "%s/flowm-test-XXXXXX",
              tmp != NULL && *tmp != '\0' ? tmp : "/tmp");
@@ -270,12 +285,37 @@ test_config_files(void)
         return;
     }
     snprintf(main_path, sizeof(main_path), "%s/main.conf", dir);
+    snprintf(inc_path, sizeof(inc_path), "%s/extra.conf", dir);
+    snprintf(loop_path, sizeof(loop_path), "%s/loop.conf", dir);
+
+    write_file(inc_path,
+               "border_width = 5\n"
+               "bind = Mod4+x snap_top_left\n");
+    write_file(main_path,
+               "include = extra.conf\n");
+
+    config_defaults(&cfg);
+    CHECK(config_load(&cfg, main_path));
+    CHECK(cfg.parse_errors == 0);
+    CHECK(cfg.border_width == 5);
+
+    b = find_binding(&cfg, Mod4Mask, XK_x);
+    CHECK(b != NULL && b->action == ACT_SNAP &&
+          b->arg_int == SNAP_TOP_LEFT);
+    config_free(&cfg);
 
     write_file(main_path,
+               "include = missing.conf\n"
                "bogus = 1\n");
     config_defaults(&cfg);
     CHECK(config_load(&cfg, main_path));
-    CHECK(cfg.parse_errors == 1);
+    CHECK(cfg.parse_errors == 2);
+    config_free(&cfg);
+
+    write_file(loop_path, "include = loop.conf\n");
+    config_defaults(&cfg);
+    CHECK(config_load(&cfg, loop_path));
+    CHECK(cfg.parse_errors >= 1);
     config_free(&cfg);
 
     config_defaults(&cfg);
@@ -283,6 +323,8 @@ test_config_files(void)
     config_free(&cfg);
 
     unlink(main_path);
+    unlink(inc_path);
+    unlink(loop_path);
     rmdir(dir);
 }
 
