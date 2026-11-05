@@ -739,6 +739,12 @@ client_manage(WM *wm, Window win, bool existing)
     rule = !existing
          ? rules_match(&wm->config.rules, wm->dpy, c->win)
          : NULL;
+    if (rule != NULL && rule->ignore) {
+        log_info("manage: 0x%lx ignored by rule '%s'", win, rule->match);
+        XMapWindow(wm->dpy, win);
+        free(c);
+        return NULL;
+    }
     if (rule != NULL && rule->no_titlebar)
         c->no_titlebar = true;
 

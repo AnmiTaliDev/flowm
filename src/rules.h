@@ -27,6 +27,7 @@ typedef struct Rule {
     bool sticky;
     bool no_titlebar;
     bool follow;
+    bool ignore;
     ClientSnap snap;
 
     bool set_size;
