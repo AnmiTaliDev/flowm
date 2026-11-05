@@ -207,10 +207,13 @@ test_rule_lines(void)
     CHECK(rs.rules[5].snap == SNAP_BOTTOM_LEFT);
     CHECK(rs.rules[5].no_titlebar);
 
+    CHECK(rules_parse_line(&rs, "chat workspace=3,follow"));
+    CHECK(rs.rules[6].follow && rs.rules[6].workspace == 2);
+
     CHECK(!rules_parse_line(&rs, "NoOptionsHere"));
     CHECK(!rules_parse_line(&rs, "app bogus=1"));
     CHECK(!rules_parse_line(&rs, "app size=abc"));
-    CHECK(rs.count == 6);
+    CHECK(rs.count == 7);
 }
 
 static void

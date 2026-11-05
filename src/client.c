@@ -18,6 +18,7 @@
 #include "rules.h"
 #include "ewmh.h"
 #include "bar.h"
+#include "workspace.h"
 #include "log.h"
 #include "util.h"
 
@@ -824,6 +825,10 @@ client_manage(WM *wm, Window win, bool existing)
         if (rule->fullscreen)
             client_set_fullscreen(wm, c, true);
     }
+
+    if (rule != NULL && rule->follow && !c->is_sticky &&
+        c->workspace != wm->current_ws)
+        workspace_switch(wm, c->workspace);
 
     if (c->workspace != wm->current_ws && !c->is_sticky) {
         client_hide(wm, c);
