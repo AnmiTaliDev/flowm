@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/select.h>
 #include <unistd.h>
 
 #include <X11/Xlib.h>
@@ -20,6 +21,55 @@ send_command(Display *dpy, Window root, const char *text)
     XChangeProperty(dpy, root, cmd, XA_STRING, 8, PropModeReplace,
                     (const unsigned char *)text, (int)strlen(text));
     XFlush(dpy);
+}
+
+static int
+query(Display *dpy, Window root, const char *what)
+{
+    Atom reply = XInternAtom(dpy, "_FLOWM_REPLY", False);
+    char cmd[128];
+
+    XSelectInput(dpy, root, PropertyChangeMask);
+    XDeleteProperty(dpy, root, reply);
+    snprintf(cmd, sizeof(cmd), "get %s", what);
+    send_command(dpy, root, cmd);
+
+    for (;;) {
+        fd_set fds;
+        struct timeval tv;
+
+        while (XPending(dpy) > 0) {
+            XEvent ev;
+
+            XNextEvent(dpy, &ev);
+            if (ev.type == PropertyNotify &&
+                ev.xproperty.atom == reply &&
+                ev.xproperty.state == PropertyNewValue) {
+                Atom type;
+                int format;
+                unsigned long nitems, after;
+                unsigned char *data = NULL;
+
+                if (XGetWindowProperty(dpy, root, reply, 0, 8192 / 4,
+                                       False, AnyPropertyType, &type,
+                                       &format, &nitems, &after,
+                                       &data) == Success && data != NULL) {
+                    fputs((const char *)data, stdout);
+                    XFree(data);
+                }
+                return EXIT_SUCCESS;
+            }
+        }
+
+        FD_ZERO(&fds);
+        FD_SET(ConnectionNumber(dpy), &fds);
+        tv.tv_sec  = 2;
+        tv.tv_usec = 0;
+        if (select(ConnectionNumber(dpy) + 1, &fds, NULL, NULL, &tv) <= 0) {
+            fprintf(stderr, "panelctl: no reply from flowm\n");
+            return EXIT_FAILURE;
+        }
+    }
 }
 
 static void
@@ -110,7 +160,12 @@ main(int argc, char **argv)
     }
     root = DefaultRootWindow(dpy);
 
-    if (argc > 1) {
+    if (argc == 2 && strcmp(argv[1], "reload") == 0) {
+        send_command(dpy, root, "reload");
+        status = EXIT_SUCCESS;
+    } else if (argc == 3 && strcmp(argv[1], "get") == 0) {
+        status = query(dpy, root, argv[2]);
+    } else if (argc > 1) {
         char buf[4096];
         size_t off = 0;
         int i;
