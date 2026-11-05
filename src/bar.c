@@ -174,6 +174,31 @@ draw_ws_label(WM *wm, int index, int x)
     return x + w;
 }
 
+static int
+draw_mode_label(WM *wm, int x)
+{
+    Bar *bar = &wm->bar;
+    char label[FLOWM_MODE_MAX + 4];
+    int w, baseline;
+
+    if (wm->mode[0] == '\0')
+        return x;
+
+    snprintf(label, sizeof(label), "[%s]", wm->mode);
+    w = label_width(bar, label);
+    baseline = bar->font != NULL
+             ? (bar->height + bar->font->ascent - bar->font->descent) / 2
+             : bar->height - 6;
+
+    XSetForeground(wm->dpy, bar->gc, wm->px_border_urgent);
+    XFillRectangle(wm->dpy, bar->window, bar->gc,
+                   x, 0, (unsigned)w, (unsigned)bar->height);
+    XSetForeground(wm->dpy, bar->gc, wm->px_title_text);
+    XDrawString(wm->dpy, bar->window, bar->gc,
+                x + WS_LABEL_PAD, baseline, label, (int)strlen(label));
+    return x + w;
+}
+
 void
 bar_draw(WM *wm)
 {
@@ -196,6 +221,7 @@ bar_draw(WM *wm)
 
     for (i = 0; i < wm->config.workspace_count; i++)
         x = draw_ws_label(wm, i, x);
+    x = draw_mode_label(wm, x);
 
     now = time(NULL);
     localtime_r(&now, &tm);
