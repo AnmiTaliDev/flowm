@@ -47,11 +47,36 @@ test_snap_rect_odd_sizes(void)
     CHECK(w >= 1 && h >= 1);
 }
 
+static void
+test_snap_edges(void)
+{
+    int x, y;
+
+    x = 5; y = 50;
+    geometry_snap_edges(12, 0, 20, 1000, 580, 22, 2, 300, 200, &x, &y);
+    CHECK(x == 2);
+    CHECK(y == 44);
+
+    x = 500; y = 300;
+    geometry_snap_edges(12, 0, 20, 1000, 580, 22, 2, 300, 200, &x, &y);
+    CHECK(x == 500 && y == 300);
+
+    x = 690; y = 390;
+    geometry_snap_edges(12, 0, 20, 1000, 580, 22, 2, 300, 200, &x, &y);
+    CHECK(x == 698);
+    CHECK(y == 398);
+
+    x = 5; y = 60;
+    geometry_snap_edges(0, 0, 20, 1000, 580, 22, 2, 300, 200, &x, &y);
+    CHECK(x == 5 && y == 60);
+}
+
 int
 main(void)
 {
     test_snap_rect_halves();
     test_snap_rect_odd_sizes();
+    test_snap_edges();
 
     if (tests_failed == 0)
         printf("OK: %d checks passed\n", tests_run);

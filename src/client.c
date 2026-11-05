@@ -347,26 +347,12 @@ client_move_resize(WM *wm, Client *c, int x, int y, int w, int h,
 void
 client_snap_position(const WM *wm, const Client *c, int *x, int *y)
 {
-    int snap = wm->config.snap_distance;
     int ux, uy, uw, uh;
-    int th = client_titlebar_height(wm, c);
-    int bw = wm->config.border_width;
-    int fw = c->w + 2 * bw;
-    int fh = c->h + th + 2 * bw;
-
-    if (snap <= 0)
-        return;
 
     wm_usable_area(wm, &ux, &uy, &uw, &uh);
-
-    if (abs(*x - bw - ux) < snap)
-        *x = ux + bw;
-    if (abs((*x - bw) + fw - (ux + uw)) < snap)
-        *x = ux + uw - fw + bw;
-    if (abs((*y - th - bw) - uy) < snap)
-        *y = uy + th + bw;
-    if (abs((*y - th - bw) + fh - (uy + uh)) < snap)
-        *y = uy + uh - fh + th + bw;
+    geometry_snap_edges(wm->config.snap_distance, ux, uy, uw, uh,
+                        client_titlebar_height(wm, c),
+                        wm->config.border_width, c->w, c->h, x, y);
 }
 
 void

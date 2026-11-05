@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
+#include <stdlib.h>
+
 #include "geometry.h"
 #include "util.h"
 
@@ -18,4 +20,24 @@ geometry_snap_rect(ClientSnap snap, int ux, int uy, int uw, int uh,
     *y = uy + th + bw;
     *w = MAX(1, (col1 - col0) - 2 * bw);
     *h = MAX(1, uh - th - 2 * bw);
+}
+
+void
+geometry_snap_edges(int distance, int ux, int uy, int uw, int uh,
+                    int th, int bw, int cw, int ch, int *x, int *y)
+{
+    int fw = cw + 2 * bw;
+    int fh = ch + th + 2 * bw;
+
+    if (distance <= 0)
+        return;
+
+    if (abs(*x - bw - ux) < distance)
+        *x = ux + bw;
+    if (abs((*x - bw) + fw - (ux + uw)) < distance)
+        *x = ux + uw - fw + bw;
+    if (abs((*y - th - bw) - uy) < distance)
+        *y = uy + th + bw;
+    if (abs((*y - th - bw) + fh - (uy + uh)) < distance)
+        *y = uy + uh - fh + th + bw;
 }

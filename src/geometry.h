@@ -12,4 +12,7 @@ typedef enum ClientSnap {
 void geometry_snap_rect(ClientSnap snap, int ux, int uy, int uw, int uh,
                         int th, int bw, int *x, int *y, int *w, int *h);
 
+void geometry_snap_edges(int distance, int ux, int uy, int uw, int uh,
+                         int th, int bw, int cw, int ch, int *x, int *y);
+
 #endif
