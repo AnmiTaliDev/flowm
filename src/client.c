@@ -785,10 +785,8 @@ client_manage(WM *wm, Window win, bool existing)
             client_set_sticky(wm, c, true);
         if (rule->maximize)
             client_toggle_maximize(wm, c);
-        if (rule->snap_left)
-            client_snap(wm, c, SNAP_LEFT);
-        else if (rule->snap_right)
-            client_snap(wm, c, SNAP_RIGHT);
+        if (rule->snap != SNAP_NONE)
+            client_snap(wm, c, rule->snap);
         if (rule->fullscreen)
             client_set_fullscreen(wm, c, true);
     }

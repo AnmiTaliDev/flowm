@@ -185,7 +185,7 @@ test_rule_lines(void)
 
     CHECK(rules_parse_line(&rs, "feh snap_left"));
     CHECK(rs.count == 4);
-    CHECK(rs.rules[3].snap_left);
+    CHECK(rs.rules[3].snap == SNAP_LEFT);
 
     CHECK(rules_parse_line(&rs, "xterm position=10:20"));
     CHECK(rs.rules[4].set_position);

@@ -96,15 +96,7 @@ apply_rule_option(Rule *r, const char *opt)
         if (str_ieq(opt, "maximize"))   { r->maximize = true;   return true; }
         if (str_ieq(opt, "fullscreen")) { r->fullscreen = true; return true; }
         if (str_ieq(opt, "sticky"))     { r->sticky = true;     return true; }
-        if (str_ieq(opt, "snap_left") || str_ieq(opt, "tile_left")) {
-            r->snap_left = true;
-            return true;
-        }
-        if (str_ieq(opt, "snap_right") || str_ieq(opt, "tile_right")) {
-            r->snap_right = true;
-            return true;
-        }
-        return false;
+        return geometry_snap_from_name(opt, &r->snap);
     }
 
     if (str_has_prefix(opt, "workspace=")) {

@@ -11,6 +11,7 @@
 #include <X11/Xlib.h>
 
 #include "util.h"
+#include "geometry.h"
 
 #define FLOWM_MAX_RULES 64
 
@@ -24,8 +25,7 @@ typedef struct Rule {
     bool maximize;
     bool fullscreen;
     bool sticky;
-    bool snap_left;
-    bool snap_right;
+    ClientSnap snap;
 
     bool set_size;
     int  width, height;
