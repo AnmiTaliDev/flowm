@@ -59,7 +59,15 @@ lines,
 .B bind = CHORD ACTION
 key bindings and
 .B rule = MATCH options
-per-application rules.  See the shipped
+per-application rules.
+.B mode_bind = MODE CHORD ACTION
+defines a binding active only in key mode MODE, entered with the
+.B mode
+action.
+.B unbind = CHORD
+removes a default binding and
+.B include = FILE
+reads another file relative to the including one.  See the shipped
 .I flowm.conf
 for the complete, commented list of options.
 .SH DEFAULT BINDINGS
