@@ -152,6 +152,9 @@ test_parse_action(void)
     CHECK(config_parse_action("focus_last", &b));
     CHECK(b.action == ACT_FOCUS_LAST);
 
+    CHECK(config_parse_action("scratchpad", &b));
+    CHECK(b.action == ACT_SCRATCHPAD);
+
     CHECK(!config_parse_action("workspace 0", &b));     /* 1-based   */
     CHECK(!config_parse_action("workspace 99", &b));    /* too big   */
     CHECK(!config_parse_action("exec", &b));            /* no cmd    */

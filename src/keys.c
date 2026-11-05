@@ -13,6 +13,7 @@
 #include "keys.h"
 #include "client.h"
 #include "workspace.h"
+#include "scratchpad.h"
 #include "log.h"
 #include "util.h"
 
@@ -195,6 +196,10 @@ keys_run_action(WM *wm, const Binding *b)
 
     case ACT_FOCUS_LAST:
         client_focus_last(wm);
+        break;
+
+    case ACT_SCRATCHPAD:
+        scratchpad_toggle(wm);
         break;
 
     case ACT_RAISE:

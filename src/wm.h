@@ -82,7 +82,8 @@ typedef enum ActionType {
     ACT_SNAP,
     ACT_RAISE,
     ACT_LOWER,
-    ACT_FOCUS_LAST
+    ACT_FOCUS_LAST,
+    ACT_SCRATCHPAD
 } ActionType;
 
 typedef struct Binding {
