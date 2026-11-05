@@ -477,26 +477,12 @@ open_config_file(const char *explicit_path, char *used, size_t used_size)
     return NULL;
 }
 
-bool
-config_load(Config *cfg, const char *explicit_path)
+static int
+load_stream(Config *cfg, FILE *fp, const char *path)
 {
-    char path[512];
     char line[FLOWM_LINE_MAX];
-    FILE *fp;
     int lineno = 0;
     int errors = 0;
-
-    fp = open_config_file(explicit_path, path, sizeof(path));
-    if (fp == NULL) {
-        if (explicit_path != NULL) {
-            log_error("config: cannot open '%s'", explicit_path);
-            return false;
-        }
-        log_info("config: no config file found, using defaults");
-        return true;
-    }
-
-    log_info("config: loading %s", path);
 
     while (fgets(line, sizeof(line), fp) != NULL) {
         char *text, *eq, *key, *value;
@@ -554,6 +540,29 @@ config_load(Config *cfg, const char *explicit_path)
         }
     }
 
+    return errors;
+}
+
+bool
+config_load(Config *cfg, const char *explicit_path)
+{
+    char path[512];
+    FILE *fp;
+    int errors;
+
+    fp = open_config_file(explicit_path, path, sizeof(path));
+    if (fp == NULL) {
+        if (explicit_path != NULL) {
+            log_error("config: cannot open '%s'", explicit_path);
+            return false;
+        }
+        log_info("config: no config file found, using defaults");
+        return true;
+    }
+
+    log_info("config: loading %s", path);
+
+    errors = load_stream(cfg, fp, path);
     fclose(fp);
 
     cfg->parse_errors = errors;

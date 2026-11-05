@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
@@ -243,6 +244,48 @@ test_config_defaults_roundtrip(void)
     CHECK(cfg.binding_count == 0);
 }
 
+static void
+write_file(const char *path, const char *text)
+{
+    FILE *fp = fopen(path, "w");
+
+    if (fp == NULL)
+        return;
+    fputs(text, fp);
+    fclose(fp);
+}
+
+static void
+test_config_files(void)
+{
+    char dir[256];
+    char main_path[300];
+    const char *tmp = getenv("TMPDIR");
+    Config cfg;
+
+    snprintf(dir, sizeof(dir), "%s/flowm-test-XXXXXX",
+             tmp != NULL && *tmp != '\0' ? tmp : "/tmp");
+    if (mkdtemp(dir) == NULL) {
+        CHECK(false);
+        return;
+    }
+    snprintf(main_path, sizeof(main_path), "%s/main.conf", dir);
+
+    write_file(main_path,
+               "bogus = 1\n");
+    config_defaults(&cfg);
+    CHECK(config_load(&cfg, main_path));
+    CHECK(cfg.parse_errors == 1);
+    config_free(&cfg);
+
+    config_defaults(&cfg);
+    CHECK(!config_load(&cfg, "/nonexistent/flowm.conf"));
+    config_free(&cfg);
+
+    unlink(main_path);
+    rmdir(dir);
+}
+
 
 int
 main(void)
@@ -257,6 +300,7 @@ main(void)
     test_rule_patterns();
     test_rule_lines();
     test_config_defaults_roundtrip();
+    test_config_files();
 
     if (tests_failed == 0)
         printf("OK: %d checks passed\n", tests_run);
