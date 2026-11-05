@@ -26,6 +26,7 @@
 #include "keys.h"
 #include "bar.h"
 #include "workspace.h"
+#include "struts.h"
 #include "log.h"
 #include "util.h"
 
@@ -142,11 +143,15 @@ void
 wm_usable_area(const WM *wm, int *x, int *y, int *w, int *h)
 {
     int bar_h = wm->bar.mapped ? wm->bar.height : 0;
+    int left, right, top, bottom;
 
-    *x = 0;
-    *y = bar_h;
-    *w = wm->screen_w;
-    *h = wm->screen_h - bar_h;
+    struts_reserved(wm, &left, &right, &top, &bottom);
+    top = MAX(top, bar_h);
+
+    *x = left;
+    *y = top;
+    *w = MAX(1, wm->screen_w - left - right);
+    *h = MAX(1, wm->screen_h - top - bottom);
 }
 
 bool
