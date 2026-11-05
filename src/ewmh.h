@@ -41,6 +41,7 @@ typedef enum AtomId {
     ATOM_UTF8_STRING,
 
     ATOM_FLOWM_CMD,
+    ATOM_FLOWM_REPLY,
 
     ATOM_COUNT
 } AtomId;

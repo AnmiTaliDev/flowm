@@ -50,6 +50,7 @@ static const char *atom_names[ATOM_COUNT] = {
     [ATOM_UTF8_STRING]           = "UTF8_STRING",
 
     [ATOM_FLOWM_CMD]             = "_FLOWM_CMD",
+    [ATOM_FLOWM_REPLY]           = "_FLOWM_REPLY",
 };
 
 void
