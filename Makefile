@@ -50,15 +50,18 @@ uninstall:
 	rm -f $(DESTDIR)$(MANDIR)/flowm.1
 	rm -f $(DESTDIR)$(DOCDIR)/flowm.conf
 
-TEST_SRC = tests/test_parsers.c src/config.c src/rules.c src/util.c \
-           src/log.c
-TEST_BIN = tests/test_parsers
+TEST_BIN = tests/test_parsers tests/test_geometry
 
 test: $(TEST_BIN)
-	./$(TEST_BIN)
+	./tests/test_parsers
+	./tests/test_geometry
 
-$(TEST_BIN): $(TEST_SRC)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(TEST_SRC) $(LDLIBS)
+tests/test_parsers: tests/test_parsers.c src/config.c src/rules.c \
+                    src/util.c src/log.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+tests/test_geometry: tests/test_geometry.c src/geometry.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 UTILS_BIN = utils/panelctl
 

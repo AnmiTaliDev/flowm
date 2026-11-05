@@ -17,7 +17,7 @@ Requirements: a C99 compiler, POSIX make, libX11 headers
 
 ```sh
 make            # build ./flowm
-make test       # run the parser unit tests (no X server needed)
+make test       # run the unit tests (no X server needed)
 make debug      # ASan/UBSan build
 sudo make install
 ```
