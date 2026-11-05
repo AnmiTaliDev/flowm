@@ -447,7 +447,7 @@ client_snap_half(WM *wm, Client *c, bool left)
 {
     ClientSnap target = left ? SNAP_LEFT : SNAP_RIGHT;
     int ux, uy, uw, uh;
-    int th, bw, hw, nx, nw;
+    int nx, ny, nw, nh;
 
     if (c->is_fullscreen)
         return;
@@ -466,21 +466,13 @@ client_snap_half(WM *wm, Client *c, bool left)
     }
 
     wm_usable_area(wm, &ux, &uy, &uw, &uh);
-    th = client_titlebar_height(wm, c);
-    bw = wm->config.border_width;
-    hw = uw / 2;
-
-    if (left) {
-        nx = ux + bw;
-        nw = hw - 2 * bw;
-    } else {
-        nx = ux + hw + bw;
-        nw = (uw - hw) - 2 * bw;
-    }
+    geometry_snap_rect(target, ux, uy, uw, uh,
+                       client_titlebar_height(wm, c),
+                       wm->config.border_width, &nx, &ny, &nw, &nh);
 
     c->is_maximized = false;
     c->snap = target;
-    client_move_resize(wm, c, nx, uy + th + bw, nw, uh - th - 2 * bw, false);
+    client_move_resize(wm, c, nx, ny, nw, nh, false);
 }
 
 void

@@ -15,17 +15,12 @@
 #include "util.h"
 #include "log.h"
 #include "rules.h"
+#include "geometry.h"
 
 #define FLOWM_MAX_WORKSPACES 16
 #define FLOWM_MAX_BINDINGS   128
 
 struct WM;
-
-typedef enum ClientSnap {
-    SNAP_NONE = 0,
-    SNAP_LEFT,
-    SNAP_RIGHT
-} ClientSnap;
 
 typedef struct Client {
     Window win;
