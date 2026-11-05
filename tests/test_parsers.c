@@ -245,14 +245,16 @@ test_config_defaults_roundtrip(void)
 }
 
 static const Binding *
-find_binding(const Config *cfg, unsigned int mods, unsigned long sym)
+find_binding(const Config *cfg, const char *mode, unsigned int mods,
+             unsigned long sym)
 {
     int i;
 
     for (i = 0; i < cfg->binding_count; i++) {
         const Binding *b = &cfg->bindings[i];
 
-        if (b->modifiers == mods && b->keysym == sym)
+        if (strcmp(b->mode, mode) == 0 && b->modifiers == mods &&
+            b->keysym == sym)
             return b;
     }
     return NULL;
@@ -293,27 +295,34 @@ test_config_files(void)
                "bind = Mod4+x snap_top_left\n");
     write_file(main_path,
                "include = extra.conf\n"
-               "unbind = Mod4+q\n");
+               "unbind = Mod4+q\n"
+               "mode_bind = resize Left resize -1 0\n");
 
     config_defaults(&cfg);
     CHECK(config_load(&cfg, main_path));
     CHECK(cfg.parse_errors == 0);
     CHECK(cfg.border_width == 5);
 
-    b = find_binding(&cfg, Mod4Mask, XK_x);
+    b = find_binding(&cfg, "", Mod4Mask, XK_x);
     CHECK(b != NULL && b->action == ACT_SNAP &&
           b->arg_int == SNAP_TOP_LEFT);
-    CHECK(find_binding(&cfg, Mod4Mask, XK_q) == NULL);
-    CHECK(find_binding(&cfg, Mod4Mask, XK_Return) != NULL);
+    CHECK(find_binding(&cfg, "", Mod4Mask, XK_q) == NULL);
+    CHECK(find_binding(&cfg, "", Mod4Mask, XK_Return) != NULL);
+
+    b = find_binding(&cfg, "resize", 0, XK_Left);
+    CHECK(b != NULL && b->action == ACT_RESIZE && b->arg_int == -1);
+    CHECK(find_binding(&cfg, "", 0, XK_Left) == NULL);
     config_free(&cfg);
 
     write_file(main_path,
                "unbind = Mod4+F12\n"
+               "mode_bind = default Left move 1 0\n"
+               "mode_bind = bad/mode Left move 1 0\n"
                "include = missing.conf\n"
                "bogus = 1\n");
     config_defaults(&cfg);
     CHECK(config_load(&cfg, main_path));
-    CHECK(cfg.parse_errors == 3);
+    CHECK(cfg.parse_errors == 5);
     config_free(&cfg);
 
     write_file(loop_path, "include = loop.conf\n");

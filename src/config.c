@@ -201,6 +201,22 @@ config_parse_chord(const char *chord, unsigned int *mods_out,
     return true;
 }
 
+static bool
+mode_name_valid(const char *name, bool allow_default)
+{
+    size_t i, len = strlen(name);
+
+    if (len == 0 || len >= FLOWM_MODE_MAX)
+        return false;
+    if (!allow_default && str_ieq(name, "default"))
+        return false;
+    for (i = 0; i < len; i++)
+        if (!isalnum((unsigned char)name[i]) && name[i] != '_' &&
+            name[i] != '-')
+            return false;
+    return true;
+}
+
 bool
 config_parse_action(const char *action_str, Binding *b)
 {
@@ -386,7 +402,7 @@ config_apply_option(Config *cfg, const char *key, const char *value)
 }
 
 static bool
-apply_bind(Config *cfg, const char *value)
+apply_bind(Config *cfg, const char *mode, const char *value)
 {
     char buf[FLOWM_LINE_MAX];
     char *chord, *action_spec;
@@ -410,7 +426,8 @@ apply_bind(Config *cfg, const char *value)
 
     for (i = 0; i < cfg->binding_count; i++) {
         Binding *b = &cfg->bindings[i];
-        if (b->modifiers == mods && b->keysym == (KeySym)sym) {
+        if (strcmp(b->mode, mode) == 0 && b->modifiers == mods &&
+            b->keysym == (KeySym)sym) {
             free(b->arg_str);
             b->action   = parsed.action;
             b->arg_int  = parsed.arg_int;
@@ -429,8 +446,27 @@ apply_bind(Config *cfg, const char *value)
     cfg->bindings[cfg->binding_count] = parsed;
     cfg->bindings[cfg->binding_count].modifiers = mods;
     cfg->bindings[cfg->binding_count].keysym = (KeySym)sym;
+    xstrlcpy(cfg->bindings[cfg->binding_count].mode, mode,
+             sizeof(cfg->bindings[0].mode));
     cfg->binding_count++;
     return true;
+}
+
+static bool
+apply_mode_bind(Config *cfg, const char *value)
+{
+    char buf[FLOWM_LINE_MAX];
+    char *mode, *rest;
+
+    xstrlcpy(buf, value, sizeof(buf));
+    mode = str_trim(buf);
+    rest = strchr(mode, ' ');
+    if (rest == NULL)
+        return false;
+    *rest++ = '\0';
+    if (!mode_name_valid(mode, false))
+        return false;
+    return apply_bind(cfg, mode, str_trim(rest));
 }
 
 static bool
@@ -446,7 +482,8 @@ apply_unbind(Config *cfg, const char *value)
     for (i = 0; i < cfg->binding_count; i++) {
         Binding *b = &cfg->bindings[i];
 
-        if (b->modifiers == mods && b->keysym == (KeySym)sym) {
+        if (b->mode[0] == '\0' && b->modifiers == mods &&
+            b->keysym == (KeySym)sym) {
             free(b->arg_str);
             memmove(b, b + 1,
                     (size_t)(cfg->binding_count - i - 1) * sizeof(*b));
@@ -593,8 +630,17 @@ load_stream(Config *cfg, FILE *fp, const char *path, int depth)
         }
 
         if (str_ieq(key, "bind")) {
-            if (!apply_bind(cfg, value)) {
+            if (!apply_bind(cfg, "", value)) {
                 log_warn("config:%s:%d: bad binding '%s'",
+                         path, lineno, value);
+                errors++;
+            }
+            continue;
+        }
+
+        if (str_ieq(key, "mode_bind")) {
+            if (!apply_mode_bind(cfg, value)) {
+                log_warn("config:%s:%d: bad mode binding '%s'",
                          path, lineno, value);
                 errors++;
             }

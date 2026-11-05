@@ -71,8 +71,12 @@ keys_grab(WM *wm)
 
     for (i = 0; i < wm->config.binding_count; i++) {
         const Binding *b = &wm->config.bindings[i];
-        KeyCode code = XKeysymToKeycode(wm->dpy, b->keysym);
+        KeyCode code;
 
+        if (b->mode[0] != '\0')
+            continue;
+
+        code = XKeysymToKeycode(wm->dpy, b->keysym);
         if (code == 0) {
             log_warn("keys: keysym 0x%lx has no keycode, "
                      "binding skipped", (unsigned long)b->keysym);
@@ -233,7 +237,8 @@ keys_handle_keypress(WM *wm, XKeyEvent *ev)
     for (i = 0; i < wm->config.binding_count; i++) {
         const Binding *b = &wm->config.bindings[i];
 
-        if (b->keysym == sym && b->modifiers == clean_mods) {
+        if (b->mode[0] == '\0' && b->keysym == sym &&
+            b->modifiers == clean_mods) {
             log_debug("keys: chord matched, action=%d", (int)b->action);
             keys_run_action(wm, b);
             return;

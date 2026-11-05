@@ -20,6 +20,7 @@
 #define FLOWM_MAX_WORKSPACES 16
 #define FLOWM_MAX_BINDINGS   128
 #define FLOWM_MAX_STRUTS     32
+#define FLOWM_MODE_MAX       16
 #define FLOWM_STATUS_MAX     256
 
 #define WORKSPACE_HIDDEN (-1)
@@ -90,6 +91,7 @@ typedef enum ActionType {
 } ActionType;
 
 typedef struct Binding {
+    char         mode[FLOWM_MODE_MAX];
     unsigned int modifiers;
     KeySym       keysym;
     ActionType   action;
