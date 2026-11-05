@@ -213,10 +213,18 @@ test_rule_lines(void)
     CHECK(rules_parse_line(&rs, "popup ignore"));
     CHECK(rs.rules[7].ignore);
 
+    CHECK(rules_parse_line(&rs, "\"title:Save As*\" center"));
+    CHECK(rs.rules[8].match_title);
+    CHECK(strcmp(rs.rules[8].match, "Save As*") == 0);
+    CHECK(!rs.rules[7].match_title);
+
     CHECK(!rules_parse_line(&rs, "NoOptionsHere"));
     CHECK(!rules_parse_line(&rs, "app bogus=1"));
     CHECK(!rules_parse_line(&rs, "app size=abc"));
-    CHECK(rs.count == 8);
+    CHECK(!rules_parse_line(&rs, "title: center"));
+    CHECK(!rules_parse_line(&rs, "\"title:Save As* center"));
+    CHECK(!rules_parse_line(&rs, "\"title:Save As*\""));
+    CHECK(rs.count == 9);
 }
 
 static void

@@ -17,6 +17,7 @@
 
 typedef struct Rule {
     char match[64];
+    bool match_title;
 
     bool set_workspace;
     int  workspace;
@@ -44,7 +45,8 @@ typedef struct RuleSet {
 
 bool rules_parse_line(RuleSet *rs, const char *value);
 
-const Rule *rules_match(const RuleSet *rs, Display *dpy, Window win);
+const Rule *rules_match(const RuleSet *rs, Display *dpy, Window win,
+                        const char *title);
 
 bool rules_pattern_matches(const char *pattern, const char *name);
 

@@ -143,13 +143,30 @@ rules_parse_line(RuleSet *rs, const char *value)
 
     xstrlcpy(buf, value, sizeof(buf));
     match = str_trim(buf);
-    opts = strchr(match, ' ');
-    if (opts == NULL)
-        return false;
-    *opts++ = '\0';
-    opts = str_trim(opts);
+    if (*match == '"') {
+        match++;
+        opts = strchr(match, '"');
+        if (opts == NULL)
+            return false;
+        *opts++ = '\0';
+        opts = str_trim(opts);
+        if (*opts == '\0')
+            return false;
+    } else {
+        opts = strchr(match, ' ');
+        if (opts == NULL)
+            return false;
+        *opts++ = '\0';
+        opts = str_trim(opts);
+    }
 
     memset(&r, 0, sizeof(r));
+    if (str_has_prefix(match, "title:")) {
+        r.match_title = true;
+        match += strlen("title:");
+        if (*match == '\0')
+            return false;
+    }
     xstrlcpy(r.match, match, sizeof(r.match));
 
     for (token = strtok_r(opts, ",", &save);
@@ -171,7 +188,8 @@ rules_parse_line(RuleSet *rs, const char *value)
 }
 
 const Rule *
-rules_match(const RuleSet *rs, Display *dpy, Window win)
+rules_match(const RuleSet *rs, Display *dpy, Window win,
+            const char *title)
 {
     XClassHint hint;
     const Rule *found = NULL;
@@ -181,17 +199,20 @@ rules_match(const RuleSet *rs, Display *dpy, Window win)
         return NULL;
 
     memset(&hint, 0, sizeof(hint));
-    if (XGetClassHint(dpy, win, &hint) == 0)
-        return NULL;
+    XGetClassHint(dpy, win, &hint);
 
     for (i = 0; i < rs->count && found == NULL; i++) {
         const Rule *r = &rs->rules[i];
 
-        if ((hint.res_name != NULL &&
-             rules_pattern_matches(r->match, hint.res_name)) ||
-            (hint.res_class != NULL &&
-             rules_pattern_matches(r->match, hint.res_class)))
+        if (r->match_title) {
+            if (rules_pattern_matches(r->match, title))
+                found = r;
+        } else if ((hint.res_name != NULL &&
+                    rules_pattern_matches(r->match, hint.res_name)) ||
+                   (hint.res_class != NULL &&
+                    rules_pattern_matches(r->match, hint.res_class))) {
             found = r;
+        }
     }
 
     if (found != NULL)
