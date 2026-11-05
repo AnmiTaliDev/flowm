@@ -32,7 +32,7 @@
 int
 client_titlebar_height(const WM *wm, const Client *c)
 {
-    if (c != NULL && c->is_fullscreen)
+    if (c != NULL && (c->is_fullscreen || c->no_titlebar))
         return 0;
     return wm->config.titlebar_height;
 }
@@ -735,12 +735,15 @@ client_manage(WM *wm, Window win, bool existing)
     client_update_wm_hints(wm, c);
     ewmh_fetch_title(wm, c->win, c->title, sizeof(c->title));
 
-    if (!existing)
-        place_client(wm, c, &attrs);
-
     rule = !existing
          ? rules_match(&wm->config.rules, wm->dpy, c->win)
          : NULL;
+    if (rule != NULL && rule->no_titlebar)
+        c->no_titlebar = true;
+
+    if (!existing)
+        place_client(wm, c, &attrs);
+
     if (rule != NULL) {
         if (rule->set_size) {
             c->w = rule->width;

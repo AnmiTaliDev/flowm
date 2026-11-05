@@ -203,10 +203,14 @@ test_rule_lines(void)
     CHECK(rs.rules[4].set_position);
     CHECK(rs.rules[4].x == 10 && rs.rules[4].y == 20);
 
+    CHECK(rules_parse_line(&rs, "dock snap_bottom_left,no_titlebar"));
+    CHECK(rs.rules[5].snap == SNAP_BOTTOM_LEFT);
+    CHECK(rs.rules[5].no_titlebar);
+
     CHECK(!rules_parse_line(&rs, "NoOptionsHere"));
     CHECK(!rules_parse_line(&rs, "app bogus=1"));
     CHECK(!rules_parse_line(&rs, "app size=abc"));
-    CHECK(rs.count == 5);
+    CHECK(rs.count == 6);
 }
 
 static void

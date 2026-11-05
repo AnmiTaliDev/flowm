@@ -96,6 +96,7 @@ apply_rule_option(Rule *r, const char *opt)
         if (str_ieq(opt, "maximize"))   { r->maximize = true;   return true; }
         if (str_ieq(opt, "fullscreen")) { r->fullscreen = true; return true; }
         if (str_ieq(opt, "sticky"))     { r->sticky = true;     return true; }
+        if (str_ieq(opt, "no_titlebar")) { r->no_titlebar = true; return true; }
         return geometry_snap_from_name(opt, &r->snap);
     }
 

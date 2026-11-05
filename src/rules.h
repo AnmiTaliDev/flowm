@@ -25,6 +25,7 @@ typedef struct Rule {
     bool maximize;
     bool fullscreen;
     bool sticky;
+    bool no_titlebar;
     ClientSnap snap;
 
     bool set_size;

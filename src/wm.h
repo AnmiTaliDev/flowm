@@ -53,6 +53,7 @@ typedef struct Client {
     bool takes_wm_focus;
     bool deletes_window;
     bool is_urgent;
+    bool no_titlebar;
 
     unsigned long focus_seq;
 
