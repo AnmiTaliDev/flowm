@@ -19,6 +19,7 @@
 #include "keys.h"
 #include "bar.h"
 #include "workspace.h"
+#include "struts.h"
 #include "ipc.h"
 #include "log.h"
 #include "util.h"
@@ -61,6 +62,7 @@ handle_destroy_notify(WM *wm, XDestroyWindowEvent *ev)
 {
     Client *c = client_from_window(wm, ev->window);
 
+    struts_remove(wm, ev->window);
     if (c != NULL)
         client_unmanage(wm, c, true);
 }
@@ -301,8 +303,12 @@ handle_property_notify(WM *wm, XPropertyEvent *ev)
     }
 
     c = client_from_window(wm, ev->window);
-    if (c == NULL)
+    if (c == NULL) {
+        if (ev->atom == ewmh_atom(ATOM_NET_WM_STRUT_PARTIAL) ||
+            ev->atom == ewmh_atom(ATOM_NET_WM_STRUT))
+            struts_refresh(wm, ev->window);
         return;
+    }
 
     if (ev->atom == XA_WM_NAME ||
         ev->atom == ewmh_atom(ATOM_NET_WM_NAME)) {

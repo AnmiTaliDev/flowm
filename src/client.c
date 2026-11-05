@@ -19,6 +19,7 @@
 #include "ewmh.h"
 #include "bar.h"
 #include "workspace.h"
+#include "struts.h"
 #include "log.h"
 #include "util.h"
 
@@ -715,6 +716,7 @@ client_manage(WM *wm, Window win, bool existing)
     if (ewmh_is_unmanaged_type(wm, win, &is_dialog)) {
         log_info("manage: 0x%lx is a dock/desktop type, mapping raw",
                  win);
+        struts_add(wm, win);
         XMapWindow(wm->dpy, win);
         return NULL;
     }
