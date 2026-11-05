@@ -15,6 +15,8 @@ void bar_shutdown(WM *wm);
 
 void bar_draw(WM *wm);
 
+void bar_update_status(WM *wm);
+
 bool bar_owns_window(const WM *wm, Window win);
 
 void bar_handle_click(WM *wm, int x, int y);

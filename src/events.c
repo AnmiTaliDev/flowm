@@ -295,6 +295,8 @@ handle_property_notify(WM *wm, XPropertyEvent *ev)
         if (ev->atom == ewmh_atom(ATOM_FLOWM_CMD) &&
             ev->state == PropertyNewValue)
             ipc_handle_property(wm);
+        else if (ev->atom == XA_WM_NAME)
+            bar_update_status(wm);
         return;
     }
 

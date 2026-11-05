@@ -19,6 +19,7 @@
 
 #define FLOWM_MAX_WORKSPACES 16
 #define FLOWM_MAX_BINDINGS   128
+#define FLOWM_STATUS_MAX     256
 
 #define WORKSPACE_HIDDEN (-1)
 
@@ -154,6 +155,7 @@ typedef struct Bar {
     GC     gc;
     XFontStruct *font;
     bool   mapped;
+    char   status[FLOWM_STATUS_MAX];
 } Bar;
 
 typedef struct WM {

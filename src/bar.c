@@ -30,6 +30,18 @@ text_width(const Bar *bar, const char *s)
 }
 
 static int
+fit_text(const Bar *bar, const char *s, int max_width)
+{
+    int len = (int)strlen(s);
+
+    if (bar->font == NULL)
+        return MIN(len, MAX(0, max_width / 7));
+    while (len > 0 && XTextWidth(bar->font, s, len) > max_width)
+        len--;
+    return len;
+}
+
+static int
 label_width(const Bar *bar, const char *s)
 {
     return text_width(bar, s) + 2 * WS_LABEL_PAD;
@@ -81,6 +93,19 @@ bar_init(WM *wm)
     bar->mapped = true;
 
     log_info("bar: created, height=%d", bar->height);
+    bar_update_status(wm);
+}
+
+void
+bar_update_status(WM *wm)
+{
+    char *name = NULL;
+
+    wm->bar.status[0] = '\0';
+    if (XFetchName(wm->dpy, wm->root, &name) != 0 && name != NULL) {
+        xstrlcpy(wm->bar.status, name, sizeof(wm->bar.status));
+        XFree(name);
+    }
     bar_draw(wm);
 }
 
@@ -153,7 +178,7 @@ void
 bar_draw(WM *wm)
 {
     Bar *bar = &wm->bar;
-    int x = 0, i, baseline, clock_w;
+    int x = 0, i, baseline, clock_w, status_w = 0, status_len = 0;
     char clock_buf[64];
     time_t now;
     struct tm tm;
@@ -181,10 +206,27 @@ bar_draw(WM *wm)
                 wm->screen_w - clock_w - WS_LABEL_PAD, baseline,
                 clock_buf, (int)strlen(clock_buf));
 
+    if (bar->status[0] != '\0') {
+        status_len = fit_text(bar, bar->status, wm->screen_w / 3);
+        status_w = status_len > 0
+                 ? (bar->font != NULL
+                    ? XTextWidth(bar->font, bar->status, status_len)
+                    : status_len * 7)
+                 : 0;
+    }
+    if (status_w > 0) {
+        XSetForeground(wm->dpy, bar->gc, wm->px_bar_fg);
+        XDrawString(wm->dpy, bar->window, bar->gc,
+                    wm->screen_w - clock_w - WS_LABEL_PAD - TITLE_GAP
+                    - status_w,
+                    baseline, bar->status, status_len);
+    }
+
     if (wm->focused != NULL) {
         char title[FLOWM_TITLE_MAX];
         int avail = wm->screen_w - clock_w - 2 * WS_LABEL_PAD
-                  - x - 2 * TITLE_GAP;
+                  - x - 2 * TITLE_GAP
+                  - (status_w > 0 ? status_w + TITLE_GAP : 0);
         int len;
 
         xstrlcpy(title, wm->focused->title, sizeof(title));
