@@ -8,7 +8,13 @@
 typedef enum ClientSnap {
     SNAP_NONE = 0,
     SNAP_LEFT,
-    SNAP_RIGHT
+    SNAP_RIGHT,
+    SNAP_TOP,
+    SNAP_BOTTOM,
+    SNAP_TOP_LEFT,
+    SNAP_TOP_RIGHT,
+    SNAP_BOTTOM_LEFT,
+    SNAP_BOTTOM_RIGHT
 } ClientSnap;
 
 bool geometry_snap_from_name(const char *name, ClientSnap *out);

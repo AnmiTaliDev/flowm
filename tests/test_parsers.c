@@ -143,6 +143,12 @@ test_parse_action(void)
     CHECK(config_parse_action("tile_right", &b));
     CHECK(b.action == ACT_SNAP && b.arg_int == SNAP_RIGHT);
 
+    CHECK(config_parse_action("snap_top", &b));
+    CHECK(b.action == ACT_SNAP && b.arg_int == SNAP_TOP);
+
+    CHECK(config_parse_action("snap_bottom_right", &b));
+    CHECK(b.action == ACT_SNAP && b.arg_int == SNAP_BOTTOM_RIGHT);
+
     CHECK(!config_parse_action("workspace 0", &b));     /* 1-based   */
     CHECK(!config_parse_action("workspace 99", &b));    /* too big   */
     CHECK(!config_parse_action("exec", &b));            /* no cmd    */
