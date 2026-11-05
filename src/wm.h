@@ -20,6 +20,8 @@
 #define FLOWM_MAX_WORKSPACES 16
 #define FLOWM_MAX_BINDINGS   128
 
+#define WORKSPACE_HIDDEN (-1)
+
 struct WM;
 
 typedef struct Client {

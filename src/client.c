@@ -601,6 +601,8 @@ client_lower(WM *wm, Client *c)
 void
 client_show(WM *wm, Client *c)
 {
+    if (c->workspace == WORKSPACE_HIDDEN)
+        return;
     XMapWindow(wm->dpy, c->frame);
     ewmh_set_wm_state(wm, c, NormalState);
 }
