@@ -19,6 +19,7 @@
 
 #define FLOWM_MAX_WORKSPACES 16
 #define FLOWM_MAX_BINDINGS   128
+#define FLOWM_MAX_STRUTS     32
 #define FLOWM_STATUS_MAX     256
 
 #define WORKSPACE_HIDDEN (-1)
@@ -158,6 +159,11 @@ typedef struct Bar {
     char   status[FLOWM_STATUS_MAX];
 } Bar;
 
+typedef struct Strut {
+    Window win;
+    int    left, right, top, bottom;
+} Strut;
+
 typedef struct WM {
     Display *dpy;
     int      screen;
@@ -173,6 +179,9 @@ typedef struct WM {
     Client *focused;
     Client *scratch;
     unsigned long focus_counter;
+
+    Strut struts[FLOWM_MAX_STRUTS];
+    int   strut_count;
 
     Drag drag;
     Bar  bar;

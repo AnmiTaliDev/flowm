@@ -20,7 +20,7 @@ LDLIBS  += $(X11_LIBS)
 
 SRC = src/main.c src/wm.c src/client.c src/events.c src/keys.c \
       src/config.c src/ewmh.c src/workspace.c src/bar.c \
-      src/rules.c src/util.c src/log.c src/geometry.c \
+      src/rules.c src/util.c src/log.c src/geometry.c src/struts.c \
       src/scratchpad.c src/ipc.c
 OBJ = $(SRC:.c=.o)
 BIN = flowm
@@ -32,7 +32,7 @@ $(BIN): $(OBJ)
 
 $(OBJ): src/wm.h src/client.h src/events.h src/keys.h src/config.h \
         src/ewmh.h src/workspace.h src/bar.h src/rules.h src/util.h \
-        src/log.h src/geometry.h src/scratchpad.h src/ipc.h
+        src/log.h src/geometry.h src/struts.h src/scratchpad.h src/ipc.h
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
