@@ -193,6 +193,10 @@ keys_run_action(WM *wm, const Binding *b)
             client_snap(wm, c, (ClientSnap)b->arg_int);
         break;
 
+    case ACT_FOCUS_LAST:
+        client_focus_last(wm);
+        break;
+
     case ACT_RAISE:
         if (c != NULL)
             client_raise(wm, c);

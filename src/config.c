@@ -238,6 +238,7 @@ config_parse_action(const char *action_str, Binding *b)
         b->arg_int = (int)snap;
         return true;
     }
+    if (str_ieq(verb, "focus_last"))  { b->action = ACT_FOCUS_LAST; return true; }
     if (str_ieq(verb, "raise"))       { b->action = ACT_RAISE;      return true; }
     if (str_ieq(verb, "lower"))       { b->action = ACT_LOWER;      return true; }
     if (str_ieq(verb, "focus_next"))  { b->action = ACT_FOCUS_NEXT; return true; }

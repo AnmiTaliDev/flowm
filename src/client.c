@@ -559,6 +559,33 @@ client_focus_cycle(WM *wm, bool forward)
     client_focus(wm, target);
 }
 
+Client *
+client_most_recent(const WM *wm, const Client *exclude)
+{
+    Client *c, *best = NULL;
+
+    for (c = wm->clients; c != NULL; c = c->next) {
+        if (c == exclude || c->never_focus)
+            continue;
+        if (c->workspace != wm->current_ws && !c->is_sticky)
+            continue;
+        if (best == NULL || c->focus_seq > best->focus_seq)
+            best = c;
+    }
+    return best;
+}
+
+void
+client_focus_last(WM *wm)
+{
+    Client *target = client_most_recent(wm, wm->focused);
+
+    if (target == NULL)
+        return;
+    client_raise(wm, target);
+    client_focus(wm, target);
+}
+
 void
 client_raise(WM *wm, Client *c)
 {

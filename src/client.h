@@ -28,6 +28,10 @@ void client_focus(WM *wm, Client *c);
 
 void client_focus_cycle(WM *wm, bool forward);
 
+void client_focus_last(WM *wm);
+
+Client *client_most_recent(const WM *wm, const Client *exclude);
+
 void client_move_resize(WM *wm, Client *c, int x, int y, int w, int h,
                         bool honor_hints);
 
