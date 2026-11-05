@@ -318,6 +318,7 @@ wm_reload_config(WM *wm)
     keys_ungrab(wm);
     config_free(&wm->config);
     wm->config = new_cfg;
+    wm->mode[0] = '\0';
     keys_grab(wm);
 
     wm_apply_visual_config(wm);
