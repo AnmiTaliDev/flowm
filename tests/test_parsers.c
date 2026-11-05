@@ -292,7 +292,8 @@ test_config_files(void)
                "border_width = 5\n"
                "bind = Mod4+x snap_top_left\n");
     write_file(main_path,
-               "include = extra.conf\n");
+               "include = extra.conf\n"
+               "unbind = Mod4+q\n");
 
     config_defaults(&cfg);
     CHECK(config_load(&cfg, main_path));
@@ -302,14 +303,17 @@ test_config_files(void)
     b = find_binding(&cfg, Mod4Mask, XK_x);
     CHECK(b != NULL && b->action == ACT_SNAP &&
           b->arg_int == SNAP_TOP_LEFT);
+    CHECK(find_binding(&cfg, Mod4Mask, XK_q) == NULL);
+    CHECK(find_binding(&cfg, Mod4Mask, XK_Return) != NULL);
     config_free(&cfg);
 
     write_file(main_path,
+               "unbind = Mod4+F12\n"
                "include = missing.conf\n"
                "bogus = 1\n");
     config_defaults(&cfg);
     CHECK(config_load(&cfg, main_path));
-    CHECK(cfg.parse_errors == 2);
+    CHECK(cfg.parse_errors == 3);
     config_free(&cfg);
 
     write_file(loop_path, "include = loop.conf\n");

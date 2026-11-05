@@ -433,6 +433,31 @@ apply_bind(Config *cfg, const char *value)
     return true;
 }
 
+static bool
+apply_unbind(Config *cfg, const char *value)
+{
+    unsigned int mods;
+    unsigned long sym;
+    int i;
+
+    if (!config_parse_chord(value, &mods, &sym))
+        return false;
+
+    for (i = 0; i < cfg->binding_count; i++) {
+        Binding *b = &cfg->bindings[i];
+
+        if (b->modifiers == mods && b->keysym == (KeySym)sym) {
+            free(b->arg_str);
+            memmove(b, b + 1,
+                    (size_t)(cfg->binding_count - i - 1) * sizeof(*b));
+            cfg->binding_count--;
+            memset(&cfg->bindings[cfg->binding_count], 0, sizeof(*b));
+            return true;
+        }
+    }
+    return false;
+}
+
 static void
 strip_inline_comment(char *s)
 {
@@ -570,6 +595,15 @@ load_stream(Config *cfg, FILE *fp, const char *path, int depth)
         if (str_ieq(key, "bind")) {
             if (!apply_bind(cfg, value)) {
                 log_warn("config:%s:%d: bad binding '%s'",
+                         path, lineno, value);
+                errors++;
+            }
+            continue;
+        }
+
+        if (str_ieq(key, "unbind")) {
+            if (!apply_unbind(cfg, value)) {
+                log_warn("config:%s:%d: no default binding on '%s'",
                          path, lineno, value);
                 errors++;
             }
